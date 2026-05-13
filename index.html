@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node Eye - 多链节点监控平台</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 头部统计面板 -->
+        <header class="header">
+            <div class="header-top">
+                <div class="logo">
+                    <span class="logo-icon">👁️</span>
+                    <h1>Node Eye</h1>
+                    <span class="subtitle">多链节点监控平台</span>
+                </div>
+                <div class="update-time">
+                    <span class="label">更新时间:</span>
+                    <span id="lastUpdate" class="value">--</span>
+                </div>
+            </div>
+            
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon chain-icon">🔗</div>
+                    <div class="stat-info">
+                        <span class="stat-label">当前链</span>
+                        <span id="currentChain" class="stat-value">--</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon total-icon">📊</div>
+                    <div class="stat-info">
+                        <span class="stat-label">节点总数</span>
+                        <span id="totalNodes" class="stat-value">--</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon online-icon">✅</div>
+                    <div class="stat-info">
+                        <span class="stat-label">正常节点</span>
+                        <span id="onlineNodes" class="stat-value online">--</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon offline-icon">❌</div>
+                    <div class="stat-info">
+                        <span class="stat-label">异常节点</span>
+                        <span id="offlineNodes" class="stat-value offline">--</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon uptime-icon">📈</div>
+                    <div class="stat-info">
+                        <span class="stat-label">平均可用率</span>
+                        <span id="avgUptime" class="stat-value">--</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 控制栏 -->
+        <div class="control-bar">
+            <div class="control-group">
+                <label class="control-label">选择链:</label>
+                <select id="chainSelect" class="control-select">
+                    <!-- 动态生成 -->
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label">搜索:</label>
+                <input type="text" id="searchInput" class="control-input" placeholder="输入 Host 搜索...">
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label">状态:</label>
+                <select id="statusFilter" class="control-select">
+                    <option value="all">全部</option>
+                    <option value="online">正常</option>
+                    <option value="offline">异常</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label">排序:</label>
+                <select id="sortSelect" class="control-select">
+                    <option value="height-desc">Height ↓</option>
+                    <option value="height-asc">Height ↑</option>
+                    <option value="uptime-desc">Uptime ↓</option>
+                    <option value="uptime-asc">Uptime ↑</option>
+                    <option value="day-desc">Day ↓</option>
+                    <option value="day-asc">Day ↑</option>
+                    <option value="month-desc">Month ↓</option>
+                    <option value="month-asc">Month ↑</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 节点表格 -->
+        <div class="table-container">
+            <table class="node-table" id="nodeTable">
+                <thead>
+                    <tr>
+                        <th data-sort="host">Host</th>
+                        <th data-sort="port">Port</th>
+                        <th data-sort="proto">Proto</th>
+                        <th data-sort="utxoRoot">UTXO Root</th>
+                        <th data-sort="height">Height</th>
+                        <th data-sort="blocktime">Blocktime</th>
+                        <th data-sort="version">Version</th>
+                        <th data-sort="protocol">Protocol</th>
+                        <th data-sort="connection">Connection</th>
+                        <th data-sort="connectionTime">ConnectionTime</th>
+                        <th data-sort="status">Status</th>
+                        <th data-sort="uptime">Uptime</th>
+                        <th data-sort="hour">Hour</th>
+                        <th data-sort="day">Day</th>
+                        <th data-sort="month">Month</th>
+                    </tr>
+                </thead>
+                <tbody id="nodeTableBody">
+                    <!-- 动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>Node Eye © 2026 | 数据来源：GitHub 仓库 | 纯静态架构</p>
+            <p class="future-features">
+                后续功能：Telegram Bot 告警 | 节点历史趋势 | 节点地图 | 节点异常分析
+            </p>
+        </footer>
+    </div>
+
+    <script src="js/chains.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

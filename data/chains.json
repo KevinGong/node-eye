@@ -1,0 +1,37 @@
+{
+  "chains": [
+    {
+      "id": "bitcoin",
+      "name": "Bitcoin",
+      "symbol": "BTC",
+      "icon": "₿",
+      "color": "#f7931a",
+      "dataFile": "bitcoin.json"
+    },
+    {
+      "id": "litecoin",
+      "name": "Litecoin",
+      "symbol": "LTC",
+      "icon": "Ł",
+      "color": "#345d9d",
+      "dataFile": "litecoin.json"
+    },
+    {
+      "id": "dogecoin",
+      "name": "Dogecoin",
+      "symbol": "DOGE",
+      "icon": "Ð",
+      "color": "#c2a633",
+      "dataFile": "dogecoin.json"
+    },
+    {
+      "id": "ethereum",
+      "name": "Ethereum",
+      "symbol": "ETH",
+      "icon": "Ξ",
+      "color": "#627eea",
+      "dataFile": "ethereum.json"
+    }
+  ],
+  "lastUpdate": "2026-05-12T17:00:00+08:00"
+}

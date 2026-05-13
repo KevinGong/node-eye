@@ -82,6 +82,9 @@ for key, ep in endpoints.items():
 # 按 uptime 排序
 nodes.sort(key=lambda x: x['uptime'], reverse=True)
 
+# 只保留在线节点（或者保留所有节点）
+# nodes = [n for n in nodes if n['status'] == 'online']
+
 # 创建输出
 output = {
     "chain": "bitcoin",

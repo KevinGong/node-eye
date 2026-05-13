@@ -233,31 +233,11 @@ body {
 
 .node-table-wrapper {
     overflow-x: auto;
-    overflow-y: hidden;
-    max-height: calc(100vh - 400px);
-}
-
-.node-table-wrapper::-webkit-scrollbar {
-    height: 8px;
-}
-
-.node-table-wrapper::-webkit-scrollbar-track {
-    background: var(--bg-primary);
-    border-radius: 4px;
-}
-
-.node-table-wrapper::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
-}
-
-.node-table-wrapper::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-blue);
+    overflow-y: visible;
 }
 
 .node-table {
     width: 100%;
-    min-width: 1400px;
     border-collapse: collapse;
     font-size: 0.85rem;
 }
@@ -309,8 +289,8 @@ body {
 }
 
 /* Status 列固定显示 */
-.node-table td:nth-child(11) {
-    min-width: 100px;
+.node-table td:nth-child(7) {
+    min-width: 90px;
 }
 
 /* 序号列 */

@@ -46,17 +46,11 @@ class TableRenderer {
                     </div>
                 </td>
                 <td>${node.port}</td>
-                <td>${node.proto}</td>
-                <td class="mono">${this.truncate(node.utxoRoot, 14)}</td>
                 <td class="mono">${this.formatNumber(node.height)}</td>
-                <td class="mono">${this.formatBlocktime(node.blocktime)}</td>
                 <td class="mono">${node.version}</td>
-                <td class="mono">${node.protocol}</td>
                 <td>${node.connection}</td>
-                <td>${node.connectionTime}</td>
                 <td>${this.renderStatus(statusClass, statusText)}</td>
-                <td>${node.uptime.toFixed(2)}%</td>
-                <td>${this.renderUptimeBar(node.hour)}</td>
+                <td>${node.uptime.toFixed(1)}%</td>
                 <td>${this.renderUptimeBar(node.day)}</td>
                 <td>${this.renderUptimeBar(node.month)}</td>
             </tr>

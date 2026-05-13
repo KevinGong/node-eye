@@ -282,9 +282,58 @@ body {
     white-space: nowrap;
 }
 
-.node-table td:first-child {
+/* 序号列 */
+.node-table td.index-col {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    width: 50px;
+}
+
+/* Host 单元格 */
+.host-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.host-text {
     font-weight: 600;
     color: var(--accent-cyan);
+}
+
+/* 复制按钮 */
+.copy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    opacity: 0.6;
+}
+
+.copy-btn:hover {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: white;
+    opacity: 1;
+}
+
+.copy-btn.copied {
+    background: var(--status-online);
+    border-color: var(--status-online);
+    color: white;
+    opacity: 1;
+}
+
+.copy-btn svg {
+    display: block;
 }
 
 /* 状态样式 */

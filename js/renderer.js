@@ -16,20 +16,35 @@ class TableRenderer {
             return;
         }
 
-        const html = nodes.map(node => this.renderNodeRow(node)).join('');
+        const html = nodes.map((node, index) => this.renderNodeRow(node, index + 1)).join('');
         this.tableBody.innerHTML = html;
+        
+        // 绑定复制按钮事件
+        this.bindCopyButtons();
     }
 
     /**
      * 渲染单行节点
      */
-    renderNodeRow(node) {
+    renderNodeRow(node, index) {
         const statusClass = node.status === 'online' ? 'online' : 'offline';
         const statusText = node.status === 'online' ? '正常' : '异常';
+        const hostPort = `${node.host}:${node.port}`;
         
         return `
             <tr>
-                <td>${this.escapeHtml(node.host)}</td>
+                <td class="index-col">${index}</td>
+                <td>
+                    <div class="host-cell">
+                        <span class="host-text">${this.escapeHtml(node.host)}</span>
+                        <button class="copy-btn" data-copy="${this.escapeHtml(hostPort)}" title="复制 Host:Port">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </td>
                 <td>${node.port}</td>
                 <td>${node.proto}</td>
                 <td class="mono">${this.truncate(node.utxoRoot, 14)}</td>
@@ -189,6 +204,42 @@ class TableRenderer {
             minute: '2-digit',
             second: '2-digit'
         }).replace(/\//g, '-');
+    }
+
+    /**
+     * 绑定复制按钮事件
+     */
+    bindCopyButtons() {
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const text = btn.dataset.copy;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    // 显示成功提示
+                    btn.classList.add('copied');
+                    btn.title = '已复制！';
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                        btn.title = '复制 Host:Port';
+                    }, 2000);
+                } catch (err) {
+                    // 降级方案
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    btn.classList.add('copied');
+                    btn.title = '已复制！';
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                        btn.title = '复制 Host:Port';
+                    }, 2000);
+                }
+            });
+        });
     }
 }
 

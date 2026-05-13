@@ -28,7 +28,7 @@ class TableRenderer {
      */
     renderNodeRow(node, index) {
         const statusClass = node.status === 'online' ? 'online' : 'offline';
-        const statusText = node.status === 'online' ? '正常' : '异常';
+        const statusText = node.status === 'online' ? '在线' : '离线';
         const hostPort = `${node.host}:${node.port}`;
         
         return `
@@ -37,7 +37,7 @@ class TableRenderer {
                 <td>
                     <div class="host-cell">
                         <span class="host-text">${this.escapeHtml(node.host)}</span>
-                        <button class="copy-btn" data-copy="${this.escapeHtml(hostPort)}" title="复制 Host:Port">
+                        <button class="copy-btn" data-copy="${this.escapeHtml(hostPort)}" title="复制节点地址">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -210,15 +210,13 @@ class TableRenderer {
                 const text = btn.dataset.copy;
                 try {
                     await navigator.clipboard.writeText(text);
-                    // 显示成功提示
                     btn.classList.add('copied');
-                    btn.title = '已复制！';
+                    btn.title = '复制成功！';
                     setTimeout(() => {
                         btn.classList.remove('copied');
-                        btn.title = '复制 Host:Port';
+                        btn.title = '复制节点地址';
                     }, 2000);
                 } catch (err) {
-                    // 降级方案
                     const textarea = document.createElement('textarea');
                     textarea.value = text;
                     document.body.appendChild(textarea);
@@ -226,10 +224,10 @@ class TableRenderer {
                     document.execCommand('copy');
                     document.body.removeChild(textarea);
                     btn.classList.add('copied');
-                    btn.title = '已复制！';
+                    btn.title = '复制成功！';
                     setTimeout(() => {
                         btn.classList.remove('copied');
-                        btn.title = '复制 Host:Port';
+                        btn.title = '复制节点地址';
                     }, 2000);
                 }
             });

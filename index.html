@@ -41,14 +41,14 @@
                 <div class="stat-card">
                     <div class="stat-icon online-icon">✅</div>
                     <div class="stat-info">
-                        <span class="stat-label">正常节点</span>
+                        <span class="stat-label">在线节点</span>
                         <span id="onlineNodes" class="stat-value online">--</span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon offline-icon">❌</div>
                     <div class="stat-info">
-                        <span class="stat-label">异常节点</span>
+                        <span class="stat-label">离线节点</span>
                         <span id="offlineNodes" class="stat-value offline">--</span>
                     </div>
                 </div>
@@ -73,29 +73,29 @@
             
             <div class="control-group">
                 <label class="control-label">搜索:</label>
-                <input type="text" id="searchInput" class="control-input" placeholder="输入 Host 搜索...">
+                <input type="text" id="searchInput" class="control-input" placeholder="输入节点地址搜索...">
             </div>
             
             <div class="control-group">
                 <label class="control-label">状态:</label>
                 <select id="statusFilter" class="control-select">
                     <option value="all">全部</option>
-                    <option value="online">正常</option>
-                    <option value="offline">异常</option>
+                    <option value="online">在线</option>
+                    <option value="offline">离线</option>
                 </select>
             </div>
             
             <div class="control-group">
                 <label class="control-label">排序:</label>
                 <select id="sortSelect" class="control-select">
-                    <option value="height-desc">Height ↓</option>
-                    <option value="height-asc">Height ↑</option>
-                    <option value="uptime-desc">Uptime ↓</option>
-                    <option value="uptime-asc">Uptime ↑</option>
-                    <option value="day-desc">Day ↓</option>
-                    <option value="day-asc">Day ↑</option>
-                    <option value="month-desc">Month ↓</option>
-                    <option value="month-asc">Month ↑</option>
+                    <option value="height-desc">区块高度 ↓</option>
+                    <option value="height-asc">区块高度 ↑</option>
+                    <option value="uptime-desc">可用率 ↓</option>
+                    <option value="uptime-asc">可用率 ↑</option>
+                    <option value="day-desc">日可用率 ↓</option>
+                    <option value="day-asc">日可用率 ↑</option>
+                    <option value="month-desc">月可用率 ↓</option>
+                    <option value="month-asc">月可用率 ↑</option>
                 </select>
             </div>
         </div>
@@ -107,15 +107,15 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th data-sort="host">Host</th>
-                        <th data-sort="port">Port</th>
-                        <th data-sort="height">Height</th>
-                        <th data-sort="version">Version</th>
-                        <th data-sort="connection">Connection</th>
-                        <th data-sort="status">Status</th>
-                        <th data-sort="uptime">Uptime</th>
-                        <th data-sort="day">Day</th>
-                        <th data-sort="month">Month</th>
+                        <th data-sort="host">节点地址</th>
+                        <th data-sort="port">端口</th>
+                        <th data-sort="height">区块高度</th>
+                        <th data-sort="version">版本</th>
+                        <th data-sort="connection">连接数</th>
+                        <th data-sort="status">状态</th>
+                        <th data-sort="uptime">可用率</th>
+                        <th data-sort="day">日可用率</th>
+                        <th data-sort="month">月可用率</th>
                     </tr>
                 </thead>
                 <tbody id="nodeTableBody">

@@ -6,8 +6,8 @@
 import json
 import random
 
-# 读取 JSON 数据
-with open('/home/admin/.openclaw/media/inbound/electrum_discovery_20260513_030405---4fb0fd7b-2413-4f14-883a-14149e40853e', 'r', encoding='utf-8') as f:
+# 读取 JSON 数据（使用最新的数据文件）
+with open('/home/admin/.openclaw/media/inbound/electrum_discovery_20260515_030444---8fcc7d33-30fd-441a-b7d2-b5158e0c608a', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 endpoints = data.get('endpoints', {})

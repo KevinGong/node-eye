@@ -239,7 +239,7 @@ body {
 .node-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
 }
 
 .node-table thead {
@@ -250,16 +250,17 @@ body {
 }
 
 .node-table th {
-    padding: 14px 12px;
+    padding: 10px 8px;
     text-align: left;
     font-weight: 600;
     color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     border-bottom: 2px solid var(--border-color);
     white-space: nowrap;
     cursor: pointer;
     transition: all 0.2s ease;
+    font-size: 0.75rem;
 }
 
 .node-table th:hover {
@@ -282,24 +283,91 @@ body {
 }
 
 .node-table td {
-    padding: 12px;
+    padding: 8px 8px;
     color: var(--text-primary);
     white-space: nowrap;
-    min-width: 80px;
 }
 
-/* Status 列固定显示 */
-.node-table td:nth-child(7) {
-    min-width: 90px;
-}
-
-/* 序号列 */
-.node-table td.index-col {
+/* Column-specific widths for compact display */
+/* Index column */
+.node-table td.index-col,
+.node-table th:nth-child(1) {
+    width: 40px;
     text-align: center;
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    font-weight: 600;
-    width: 50px;
+}
+
+/* Host column - wider for addresses */
+.node-table td:nth-child(2),
+.node-table th:nth-child(2) {
+    min-width: 180px;
+    max-width: 250px;
+}
+
+/* Port column */
+.node-table td:nth-child(3),
+.node-table th:nth-child(3) {
+    width: 60px;
+    text-align: center;
+}
+
+/* SSL column */
+.node-table td:nth-child(4),
+.node-table th:nth-child(4) {
+    width: 70px;
+    text-align: center;
+}
+
+/* Height column */
+.node-table td:nth-child(5),
+.node-table th:nth-child(5) {
+    width: 80px;
+    text-align: right;
+}
+
+/* Version column */
+.node-table td:nth-child(6),
+.node-table th:nth-child(6) {
+    min-width: 100px;
+    max-width: 140px;
+}
+
+/* Protocol column */
+.node-table td:nth-child(7),
+.node-table th:nth-child(7) {
+    width: 70px;
+    text-align: center;
+}
+
+/* Status column */
+.node-table td:nth-child(8),
+.node-table th:nth-child(8) {
+    width: 80px;
+    text-align: center;
+}
+
+/* Connection Time column */
+.node-table td:nth-child(9),
+.node-table th:nth-child(9) {
+    min-width: 130px;
+    max-width: 160px;
+    font-size: 0.75rem;
+}
+
+/* Response Time column */
+.node-table td:nth-child(10),
+.node-table th:nth-child(10) {
+    width: 90px;
+    text-align: right;
+}
+
+/* Uptime columns (Hour, Day, Month) */
+.node-table td:nth-child(11),
+.node-table th:nth-child(11),
+.node-table td:nth-child(12),
+.node-table th:nth-child(12),
+.node-table td:nth-child(13),
+.node-table th:nth-child(13) {
+    width: 100px;
 }
 
 /* Host 单元格 */
@@ -394,19 +462,20 @@ body {
 .uptime-bar {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .uptime-value {
-    min-width: 45px;
+    min-width: 40px;
     font-weight: 600;
+    font-size: 0.75rem;
 }
 
 .uptime-progress {
-    width: 60px;
-    height: 6px;
+    width: 50px;
+    height: 5px;
     background: var(--bg-primary);
-    border-radius: 3px;
+    border-radius: 2px;
     overflow: hidden;
 }
 
@@ -428,18 +497,50 @@ body {
     background: linear-gradient(90deg, var(--status-offline), #f87171);
 }
 
-/* 横向滚动 */
-@media (max-width: 1400px) {
+/* 横向滚动优化 */
+@media (max-width: 1600px) {
     .table-container {
         overflow-x: auto;
     }
-    
+}
+
+/* Tablet - Hide less important columns */
+@media (max-width: 1400px) {
     .node-table {
-        min-width: 1200px;
+        min-width: 1100px;
+    }
+    
+    /* Hide protocol version on smaller screens */
+    .node-table th:nth-child(7),
+    .node-table td:nth-child(7) {
+        display: none;
     }
 }
 
 /* ========== 响应式设计 ========== */
+@media (max-width: 1200px) {
+    /* Hide connection time on medium screens */
+    .node-table th:nth-child(9),
+    .node-table td:nth-child(9) {
+        display: none;
+    }
+    
+    /* Compact uptime bars */
+    .uptime-bar {
+        gap: 4px;
+    }
+    
+    .uptime-value {
+        font-size: 0.75rem;
+        min-width: 35px;
+    }
+    
+    .uptime-progress {
+        width: 40px;
+        height: 4px;
+    }
+}
+
 @media (max-width: 768px) {
     .app-container {
         padding: 12px;

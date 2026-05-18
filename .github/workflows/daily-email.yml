@@ -1,0 +1,220 @@
+name: Daily Email Reports
+
+on:
+  # Run daily at 9:00 AM UTC
+  schedule:
+    - cron: '0 9 * * *'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action type (send/add/verify/remove/list)'
+        required: true
+        default: 'send'
+        type: choice
+        options:
+          - send
+          - add
+          - verify
+          - remove
+          - list
+      email:
+        description: 'Subscriber email'
+        required: false
+        type: string
+      chain_id:
+        description: 'Blockchain ID (bitcoin, ethereum, etc.)'
+        required: false
+        type: string
+      verification_code:
+        description: 'Verification code (for verify action)'
+        required: false
+        type: string
+      reason:
+        description: 'Unsubscribe reason'
+        required: false
+        type: string
+
+  # Issue events for subscription management
+  issues:
+    types: [opened, labeled, closed]
+
+  # Issue comment events for verification
+  issue_comment:
+    types: [created]
+
+jobs:
+  process-subscription:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+      
+      - name: Download node data
+        run: |
+          mkdir -p /tmp/data
+          cp data/*.json /tmp/data/ 2>/dev/null || echo "No data files yet"
+      
+      - name: Download subscriptions from previous run
+        uses: actions/download-artifact@v4
+        with:
+          name: subscriptions
+          path: /tmp/
+        continue-on-error: true
+      
+      # Process issue-based subscription
+      - name: Process issue subscription
+        if: github.event_name == 'issues'
+        env:
+          ACTION_TYPE: ${{ contains(github.event.issue.body, '[subscribe]') && 'add' || contains(github.event.issue.body, '[unsubscribe]') && 'remove' || 'none' }}
+          SUBSCRIBER_EMAIL: ${{ github.event.issue.user.email }}
+          SUBSCRIBER_CHAIN: ${{ contains(github.event.issue.body, 'bitcoin') && 'bitcoin' || contains(github.event.issue.body, 'ethereum') && 'ethereum' || contains(github.event.issue.body, 'litecoin') && 'litecoin' || contains(github.event.issue.body, 'dogecoin') && 'dogecoin' || '' }}
+          NODEEYE_EMAIL_FROM: ${{ secrets.NODEEYE_EMAIL_FROM }}
+          NODEEYE_EMAIL_PASSWORD: ${{ secrets.NODEEYE_EMAIL_PASSWORD }}
+          NODEEYE_SMTP_SERVER: ${{ secrets.NODEEYE_SMTP_SERVER }}
+          NODEEYE_SMTP_PORT: ${{ secrets.NODEEYE_SMTP_PORT }}
+          DATA_DIR: /tmp/data
+        run: |
+          if [ "$ACTION_TYPE" != "none" ]; then
+            echo "Processing $ACTION_TYPE request"
+            python .github/workflows/scripts/subscription_handler.py
+          else
+            echo "No subscription action detected"
+          fi
+      
+      # Process comment-based verification
+      - name: Process verification comment
+        if: github.event_name == 'issue_comment'
+        env:
+          ACTION_TYPE: verify
+          SUBSCRIBER_EMAIL: ${{ github.event.issue.user.email }}
+          VERIFICATION_CODE: ${{ github.event.comment.body }}
+          NODEEYE_EMAIL_FROM: ${{ secrets.NODEEYE_EMAIL_FROM }}
+          NODEEYE_EMAIL_PASSWORD: ${{ secrets.NODEEYE_EMAIL_PASSWORD }}
+          NODEEYE_SMTP_SERVER: ${{ secrets.NODEEYE_SMTP_SERVER }}
+          NODEEYE_SMTP_PORT: ${{ secrets.NODEEYE_SMTP_PORT }}
+          DATA_DIR: /tmp/data
+        run: |
+          # Extract just numbers from comment
+          CODE=$(echo "$VERIFICATION_CODE" | grep -oE '[0-9]+' | head -1)
+          if [ -n "$CODE" ]; then
+            echo "Verifying code: $CODE"
+            python .github/workflows/scripts/subscription_handler.py
+          else
+            echo "No verification code found in comment"
+          fi
+      
+      # Send daily emails (scheduled)
+      - name: Send daily emails
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'send')
+        env:
+          NODEEYE_EMAIL_FROM: ${{ secrets.NODEEYE_EMAIL_FROM }}
+          NODEEYE_EMAIL_PASSWORD: ${{ secrets.NODEEYE_EMAIL_PASSWORD }}
+          NODEEYE_SMTP_SERVER: ${{ secrets.NODEEYE_SMTP_SERVER }}
+          NODEEYE_SMTP_PORT: ${{ secrets.NODEEYE_SMTP_PORT }}
+          DATA_DIR: /tmp/data
+          ACTION_TYPE: send
+        run: |
+          python .github/workflows/scripts/subscription_handler.py
+      
+      # Add subscription (manual)
+      - name: Add subscription
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'add'
+        env:
+          NODEEYE_EMAIL_FROM: ${{ secrets.NODEEYE_EMAIL_FROM }}
+          NODEEYE_EMAIL_PASSWORD: ${{ secrets.NODEEYE_EMAIL_PASSWORD }}
+          NODEEYE_SMTP_SERVER: ${{ secrets.NODEEYE_SMTP_SERVER }}
+          NODEEYE_SMTP_PORT: ${{ secrets.NODEEYE_SMTP_PORT }}
+          DATA_DIR: /tmp/data
+          ACTION_TYPE: add
+          SUBSCRIBER_EMAIL: ${{ github.event.inputs.email }}
+          SUBSCRIBER_CHAIN: ${{ github.event.inputs.chain_id }}
+        run: |
+          python .github/workflows/scripts/subscription_handler.py
+      
+      # Verify email (manual)
+      - name: Verify email
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'verify'
+        env:
+          NODEEYE_EMAIL_FROM: ${{ secrets.NODEEYE_EMAIL_FROM }}
+          NODEEYE_EMAIL_PASSWORD: ${{ secrets.NODEEYE_EMAIL_PASSWORD }}
+          NODEEYE_SMTP_SERVER: ${{ secrets.NODEEYE_SMTP_SERVER }}
+          NODEEYE_SMTP_PORT: ${{ secrets.NODEEYE_SMTP_PORT }}
+          DATA_DIR: /tmp/data
+          ACTION_TYPE: verify
+          SUBSCRIBER_EMAIL: ${{ github.event.inputs.email }}
+          VERIFICATION_CODE: ${{ github.event.inputs.verification_code }}
+        run: |
+          python .github/workflows/scripts/subscription_handler.py
+      
+      # Remove subscription (manual)
+      - name: Remove subscription
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'remove'
+        env:
+          NODEEYE_EMAIL_FROM: ${{ secrets.NODEEYE_EMAIL_FROM }}
+          NODEEYE_EMAIL_PASSWORD: ${{ secrets.NODEEYE_EMAIL_PASSWORD }}
+          NODEEYE_SMTP_SERVER: ${{ secrets.NODEEYE_SMTP_SERVER }}
+          NODEEYE_SMTP_PORT: ${{ secrets.NODEEYE_SMTP_PORT }}
+          DATA_DIR: /tmp/data
+          ACTION_TYPE: remove
+          SUBSCRIBER_EMAIL: ${{ github.event.inputs.email }}
+          UNSUBSCRIBE_REASON: ${{ github.event.inputs.reason || 'user_request' }}
+        run: |
+          python .github/workflows/scripts/subscription_handler.py
+      
+      # List subscriptions (manual)
+      - name: List subscriptions
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'list'
+        env:
+          ACTION_TYPE: list
+          DATA_DIR: /tmp/data
+        run: |
+          python .github/workflows/scripts/subscription_handler.py
+      
+      # Upload subscriptions for next run
+      - name: Upload subscriptions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: subscriptions
+          path: /tmp/subscriptions.json
+          retention-days: 30
+        if: always()
+      
+      # Post comment to issue with result
+      - name: Post result comment
+        if: github.event_name == 'issues' || github.event_name == 'issue_comment'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = context.issue.number;
+            const action = process.env.ACTION_TYPE;
+            
+            let comment = '';
+            if (action === 'add') {
+              comment = '✅ **Subscription Pending**\n\nA verification code has been sent to your email. Please reply with the code to confirm your subscription.';
+            } else if (action === 'verify') {
+              comment = '✅ **Email Verified**\n\nThank you for subscribing! You will now receive daily Node Eye reports.';
+            } else if (action === 'remove') {
+              comment = '❌ **Unsubscribed**\n\nYou have been unsubscribed. Sorry to see you go!';
+            }
+            
+            if (comment) {
+              github.rest.issues.createComment({
+                issue_number: issueNumber,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }

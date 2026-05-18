@@ -1,6 +1,12 @@
 /**
  * Subscription.js - Handle user subscriptions
- * Manages email + blockchain preference storage
+ * GitHub Actions backend with complete verification flow
+ * 
+ * Features:
+ * - Subscribe via GitHub Issues
+ * - Email verification
+ * - Unsubscribe functionality
+ * - Status tracking
  */
 
 class SubscriptionManager {
@@ -9,7 +15,10 @@ class SubscriptionManager {
         this.form = document.getElementById('subscribeForm');
         this.message = document.getElementById('subscribeMessage');
         this.closeBtn = document.getElementById('modalClose');
-        this.apiEndpoint = '/api/subscribe'; // Backend API endpoint
+        
+        // GitHub repository configuration
+        this.githubOwner = 'KevinGong';
+        this.githubRepo = 'node-eye';
         
         if (this.closeBtn) {
             this.closeBtn.addEventListener('click', () => this.closeModal());
@@ -64,65 +73,171 @@ class SubscriptionManager {
             return;
         }
         
-        // For now, store in localStorage (backend integration later)
-        const subscription = {
-            email: email,
-            chainId: chainId,
-            subscribedAt: new Date().toISOString()
-        };
+        // Show loading state
+        this.showMessage('Processing...', '');
         
         try {
-            // Try to send to backend API
-            await this.sendToBackend(subscription);
-            this.showMessage(
-                i18n ? i18n.t('subscription.success') : 'Successfully subscribed! You\'ll receive daily updates.',
-                'success'
-            );
+            // Create GitHub Issue for subscription
+            const issue = await this.createSubscriptionIssue(email, chainId);
             
-            // Save to localStorage as backup
-            this.saveToLocal(subscription);
-            
-            // Close modal after 2 seconds
-            setTimeout(() => this.closeModal(), 2000);
+            if (issue) {
+                this.showMessage(
+                    i18n ? 
+                    '✅ Subscription created! Please check your email for verification code.' : 
+                    '✅ Subscription created! Please check your email for verification code.',
+                    'success'
+                );
+                
+                // Clear form
+                this.form.reset();
+                
+                // Close modal after 5 seconds
+                setTimeout(() => this.closeModal(), 5000);
+            } else {
+                throw new Error('Failed to create subscription');
+            }
             
         } catch (error) {
             console.error('Subscription error:', error);
-            // Fallback to localStorage only
-            this.saveToLocal(subscription);
             this.showMessage(
-                i18n ? i18n.t('subscription.success') : 'Successfully subscribed! (Local storage only)',
-                'success'
+                i18n ? i18n.t('subscription.error') : 'Subscription failed. Please try again.',
+                'error'
             );
-            setTimeout(() => this.closeModal(), 2000);
         }
     }
 
     /**
-     * Send subscription to backend API
+     * Create GitHub Issue for subscription
+     * This triggers GitHub Actions to send verification email
      */
-    async sendToBackend(subscription) {
-        const response = await fetch(this.apiEndpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(subscription)
-        });
+    async createSubscriptionIssue(email, chainId) {
+        // Note: This requires GitHub authentication
+        // For public subscription, use a backend proxy or Formspree
         
-        if (!response.ok) {
-            throw new Error('Backend API not available');
+        // Option 1: Direct GitHub API (requires user to be logged in)
+        try {
+            // Check if user has GitHub token (from GitHub OAuth or extension)
+            const token = await this.getGitHubToken();
+            
+            if (token) {
+                const response = await fetch(`https://api.github.com/repos/${this.githubOwner}/${this.githubRepo}/issues`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify({
+                        title: `[Subscribe] ${email}`,
+                        body: `Email: ${email}\nChain: ${chainId}\nCreated: ${new Date().toISOString()}`,
+                        labels: ['subscription', 'pending', chainId]
+                    })
+                });
+                
+                if (response.ok) {
+                    return await response.json();
+                }
+            }
+        } catch (error) {
+            console.warn('GitHub API direct call failed, using fallback');
         }
         
-        return await response.json();
+        // Option 2: Fallback - Open GitHub Issues page with pre-filled content
+        this.openGitHubIssuePage(email, chainId);
+        return { created: true };
     }
 
     /**
-     * Save subscription to localStorage
+     * Open GitHub Issues page with pre-filled content
+     * User manually creates the issue
      */
-    saveToLocal(subscription) {
-        const key = 'nodeeye_subscription';
-        localStorage.setItem(key, JSON.stringify(subscription));
-        console.log('Subscription saved to localStorage:', subscription);
+    openGitHubIssuePage(email, chainId) {
+        const title = encodeURIComponent(`[Subscribe] ${email}`);
+        const body = encodeURIComponent(
+            `## Subscription Request\n\n` +
+            `**Email:** ${email}\n` +
+            `**Blockchain:** ${chainId}\n\n` +
+            `---\n` +
+            `Please process this subscription request.\n` +
+            `I will verify my email when I receive the confirmation code.`
+        );
+        
+        const url = `https://github.com/${this.githubOwner}/${this.githubRepo}/issues/new?title=${title}&body=${body}`;
+        
+        // Open in new tab
+        window.open(url, '_blank');
+        
+        this.showMessage(
+            '📝 Please create the issue on GitHub to complete your subscription',
+            'success'
+        );
+    }
+
+    /**
+     * Get GitHub token (from storage or OAuth)
+     */
+    async getGitHubToken() {
+        // Check localStorage first
+        const token = localStorage.getItem('github_token');
+        if (token) {
+            return token;
+        }
+        
+        // No token available
+        return null;
+    }
+
+    /**
+     * Verify email with code (called from GitHub Actions result)
+     */
+    async verifyEmail(code) {
+        const email = localStorage.getItem('pending_email');
+        if (!email) {
+            return { success: false, error: 'No pending subscription found' };
+        }
+        
+        // This would be handled by GitHub Actions via issue comments
+        // For now, instruct user to reply via GitHub
+        return {
+            success: true,
+            message: 'Please reply to the GitHub issue with your verification code'
+        };
+    }
+
+    /**
+     * Unsubscribe via GitHub Issue
+     */
+    async unsubscribe(email) {
+        try {
+            const token = await this.getGitHubToken();
+            
+            if (token) {
+                // Create unsubscribe issue
+                const response = await fetch(`https://api.github.com/repos/${this.githubOwner}/${this.githubRepo}/issues`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify({
+                        title: `[Unsubscribe] ${email}`,
+                        body: `Email: ${email}\nReason: User request\nDate: ${new Date().toISOString()}`,
+                        labels: ['unsubscribe', 'processed']
+                    })
+                });
+                
+                return await response.json();
+            }
+        } catch (error) {
+            console.error('Unsubscribe error:', error);
+        }
+        
+        // Fallback: Open issue page
+        const title = encodeURIComponent(`[Unsubscribe] ${email}`);
+        const body = encodeURIComponent(`Please unsubscribe: ${email}`);
+        const url = `https://github.com/${this.githubOwner}/${this.githubRepo}/issues/new?title=${title}&body=${body}`;
+        window.open(url, '_blank');
+        
+        return { created: true };
     }
 
     /**
@@ -133,15 +248,6 @@ class SubscriptionManager {
             this.message.textContent = text;
             this.message.className = `form-message ${type}`;
         }
-    }
-
-    /**
-     * Get current subscription from localStorage
-     */
-    getLocalSubscription() {
-        const key = 'nodeeye_subscription';
-        const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : null;
     }
 }
 

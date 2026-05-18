@@ -1,141 +1,192 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Node Eye - 多链节点监控平台</title>
+    <title>Node Eye - Multi-Chain Node Monitoring Platform</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="app-container">
-        <!-- 头部统计面板 -->
+        <!-- Header Panel -->
         <header class="header">
             <div class="header-top">
                 <div class="logo">
                     <span class="logo-icon">👁️</span>
                     <h1>Node Eye</h1>
-                    <span class="subtitle">多链节点监控平台</span>
+                    <span class="subtitle" data-i18n="subtitle">Multi-Chain Node Monitoring Platform</span>
                 </div>
-                <div class="update-time">
-                    <span class="label">更新时间:</span>
-                    <span id="lastUpdate" class="value">--</span>
+                <div class="header-actions">
+                    <div class="update-time">
+                        <span class="label" data-i18n="header.updateTime">Updated:</span>
+                        <span id="lastUpdate" class="value">--</span>
+                    </div>
+                    
+                    <!-- Language Switcher -->
+                    <div class="language-switcher">
+                        <select id="languageSelect" class="control-select" data-i18n-title="language.switch">
+                            <option value="en">🇺🇸 English</option>
+                            <option value="zh">🇨🇳 中文</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Subscribe Button -->
+                    <button id="subscribeBtn" class="btn-subscribe" data-i18n="subscription.button" data-i18n-title="subscription.title">
+                        📧 Subscribe
+                    </button>
                 </div>
             </div>
             
-            <!-- 统计卡片 -->
+            <!-- Stats Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon chain-icon">🔗</div>
                     <div class="stat-info">
-                        <span class="stat-label">当前链</span>
+                        <span class="stat-label" data-i18n="header.stats.currentChain">Chain</span>
                         <span id="currentChain" class="stat-value">--</span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon total-icon">📊</div>
                     <div class="stat-info">
-                        <span class="stat-label">节点总数</span>
+                        <span class="stat-label" data-i18n="header.stats.totalNodes">Total Nodes</span>
                         <span id="totalNodes" class="stat-value">--</span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon online-icon">✅</div>
                     <div class="stat-info">
-                        <span class="stat-label">在线节点</span>
+                        <span class="stat-label" data-i18n="header.stats.onlineNodes">Online</span>
                         <span id="onlineNodes" class="stat-value online">--</span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon offline-icon">❌</div>
                     <div class="stat-info">
-                        <span class="stat-label">离线节点</span>
+                        <span class="stat-label" data-i18n="header.stats.offlineNodes">Offline</span>
                         <span id="offlineNodes" class="stat-value offline">--</span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon uptime-icon">📈</div>
                     <div class="stat-info">
-                        <span class="stat-label">平均可用率</span>
+                        <span class="stat-label" data-i18n="header.stats.avgUptime">Avg Uptime</span>
                         <span id="avgUptime" class="stat-value">--</span>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- 控制栏 -->
+        <!-- Control Bar -->
         <div class="control-bar">
             <div class="control-group">
-                <label class="control-label">选择链:</label>
+                <label class="control-label" data-i18n="controls.selectChain">Select Chain:</label>
                 <select id="chainSelect" class="control-select">
-                    <!-- 动态生成 -->
+                    <!-- Dynamically generated -->
                 </select>
             </div>
             
             <div class="control-group">
-                <label class="control-label">搜索:</label>
-                <input type="text" id="searchInput" class="control-input" placeholder="输入节点地址搜索...">
+                <label class="control-label" data-i18n="controls.search">Search:</label>
+                <input type="text" id="searchInput" class="control-input" data-i18n="controls.searchPlaceholder" placeholder="Search by node address...">
             </div>
             
             <div class="control-group">
-                <label class="control-label">状态:</label>
+                <label class="control-label" data-i18n="controls.status">Status:</label>
                 <select id="statusFilter" class="control-select">
-                    <option value="all">全部</option>
-                    <option value="online">在线</option>
-                    <option value="offline">离线</option>
+                    <option value="all" data-i18n="controls.statusAll">All</option>
+                    <option value="open" data-i18n="controls.statusOnline">Online</option>
+                    <option value="offline" data-i18n="controls.statusOffline">Offline</option>
                 </select>
             </div>
             
             <div class="control-group">
-                <label class="control-label">排序:</label>
+                <label class="control-label" data-i18n="controls.sort">Sort:</label>
                 <select id="sortSelect" class="control-select">
-                    <option value="height-desc">区块高度 ↓</option>
-                    <option value="height-asc">区块高度 ↑</option>
-                    <option value="uptime-desc">可用率 ↓</option>
-                    <option value="uptime-asc">可用率 ↑</option>
-                    <option value="day-desc">日可用率 ↓</option>
-                    <option value="day-asc">日可用率 ↑</option>
-                    <option value="month-desc">月可用率 ↓</option>
-                    <option value="month-asc">月可用率 ↑</option>
+                    <option value="height-desc" data-i18n="controls.sortHeightDesc">Height ↓</option>
+                    <option value="height-asc" data-i18n="controls.sortHeightAsc">Height ↑</option>
+                    <option value="per_hour-desc" data-i18n="controls.sortUptimeDesc">Hourly ↓</option>
+                    <option value="per_hour-asc" data-i18n="controls.sortUptimeAsc">Hourly ↑</option>
+                    <option value="per_day-desc" data-i18n="controls.sortDayDesc">Daily ↓</option>
+                    <option value="per_day-asc" data-i18n="controls.sortDayAsc">Daily ↑</option>
+                    <option value="per_month-desc" data-i18n="controls.sortMonthDesc">Monthly ↓</option>
+                    <option value="per_month-asc" data-i18n="controls.sortMonthAsc">Monthly ↑</option>
                 </select>
             </div>
         </div>
 
-        <!-- 节点表格 -->
+        <!-- Node Table -->
         <div class="table-container">
             <div class="node-table-wrapper">
                 <table class="node-table" id="nodeTable">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th data-sort="host">节点地址</th>
-                        <th data-sort="port">端口</th>
-                        <th data-sort="height">区块高度</th>
-                        <th data-sort="version">版本</th>
-                        <th data-sort="connection">连接数</th>
-                        <th data-sort="status">状态</th>
-                        <th data-sort="uptime">可用率</th>
-                        <th data-sort="day">日可用率</th>
-                        <th data-sort="month">月可用率</th>
+                        <th data-i18n="table.index">#</th>
+                        <th data-sort="host" data-i18n="table.host">Host</th>
+                        <th data-sort="port" data-i18n="table.port">Port</th>
+                        <th data-sort="ssl" data-i18n="table.ssl">SSL</th>
+                        <th data-sort="height" data-i18n="table.height">Height</th>
+                        <th data-sort="server_version" data-i18n="table.version">Version</th>
+                        <th data-sort="protocol_version" data-i18n="table.protocol">Protocol</th>
+                        <th data-sort="status" data-i18n="table.status">Status</th>
+                        <th data-sort="last_seen" data-i18n="table.connectionTime">Connection Time</th>
+                        <th data-sort="response_time_ms" data-i18n="table.responseTime">Response Time</th>
+                        <th data-sort="per_hour" data-i18n="table.uptimeHour">Hourly</th>
+                        <th data-sort="per_day" data-i18n="table.uptimeDay">Daily</th>
+                        <th data-sort="per_month" data-i18n="table.uptimeMonth">Monthly</th>
                     </tr>
                 </thead>
                 <tbody id="nodeTableBody">
-                    <!-- 动态生成 -->
+                    <!-- Dynamically generated -->
                 </tbody>
             </table>
             </div>
         </div>
 
-        <!-- 页脚 -->
+        <!-- Footer -->
         <footer class="footer">
-            <p>Node Eye © 2026 | 数据来源：GitHub 仓库 | 纯静态架构</p>
-            <p class="future-features">
-                后续功能：Telegram Bot 告警 | 节点历史趋势 | 节点地图 | 节点异常分析
+            <p data-i18n="footer.copyright">Node Eye © 2026 | Data Source: GitHub Repository | Pure Static Architecture</p>
+            <p class="future-features" data-i18n="footer.futureFeatures">
+                Coming Soon: Telegram Bot Alerts | Node History Trends | Node Map | Node Anomaly Analysis
             </p>
         </footer>
     </div>
 
+    <!-- Subscription Modal -->
+    <div id="subscribeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="subscription.title">Subscribe to Node Updates</h2>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description" data-i18n="subscription.description">Get daily JSON reports for your preferred blockchain</p>
+                
+                <form id="subscribeForm">
+                    <div class="form-group">
+                        <label for="subscribeEmail" data-i18n="subscription.email">Email Address</label>
+                        <input type="email" id="subscribeEmail" class="form-input" data-i18n-placeholder="subscription.emailPlaceholder" placeholder="your@email.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subscribeChain" data-i18n="subscription.selectBlockchain">Select Blockchain</label>
+                        <select id="subscribeChain" class="form-select">
+                            <!-- Dynamically generated -->
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" data-i18n="subscription.subscribe">Subscribe</button>
+                </form>
+                
+                <div id="subscribeMessage" class="form-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/i18n.js"></script>
     <script src="js/chains.js"></script>
     <script src="js/renderer.js"></script>
+    <script src="js/subscription.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

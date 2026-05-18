@@ -1,14 +1,16 @@
 /**
- * Renderer.js - 页面渲染
+ * Renderer.js - Page Rendering
+ * Updated to support new table columns and i18n
  */
 
 class TableRenderer {
     constructor() {
         this.tableBody = document.getElementById('nodeTableBody');
+        this.i18n = window.i18n;
     }
 
     /**
-     * 渲染节点表格
+     * Render node table
      */
     renderNodes(nodes) {
         if (!nodes || nodes.length === 0) {
@@ -19,16 +21,16 @@ class TableRenderer {
         const html = nodes.map((node, index) => this.renderNodeRow(node, index + 1)).join('');
         this.tableBody.innerHTML = html;
         
-        // 绑定复制按钮事件
+        // Bind copy button events
         this.bindCopyButtons();
     }
 
     /**
-     * 渲染单行节点
+     * Render single node row
      */
     renderNodeRow(node, index) {
-        const statusClass = node.status === 'online' ? 'online' : 'offline';
-        const statusText = node.status === 'online' ? '在线' : '离线';
+        const statusClass = node.status === 'open' ? 'online' : 'offline';
+        const statusText = this.i18n ? this.i18n.t(`status.${node.status}`) : (node.status === 'open' ? 'Open' : 'Offline');
         const hostPort = `${node.host}:${node.port}`;
         
         return `
@@ -37,7 +39,7 @@ class TableRenderer {
                 <td>
                     <div class="host-cell">
                         <span class="host-text">${this.escapeHtml(node.host)}</span>
-                        <button class="copy-btn" data-copy="${this.escapeHtml(hostPort)}" title="复制节点地址">
+                        <button class="copy-btn" data-copy="${this.escapeHtml(hostPort)}" title="${this.i18n ? this.i18n.t('copyAddress') : 'Copy node address'}">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -46,19 +48,56 @@ class TableRenderer {
                     </div>
                 </td>
                 <td>${node.port}</td>
+                <td class="ssl-cell">${this.renderSslIcon(node.ssl)}</td>
                 <td class="mono">${this.formatNumber(node.height)}</td>
-                <td class="mono">${node.version}</td>
-                <td>${node.connection}</td>
+                <td class="mono">${this.escapeHtml(node.server_version || '')}</td>
+                <td class="mono">${node.protocol_version || ''}</td>
                 <td>${this.renderStatus(statusClass, statusText)}</td>
-                <td>${node.uptime.toFixed(1)}%</td>
-                <td>${this.renderUptimeBar(node.day)}</td>
-                <td>${this.renderUptimeBar(node.month)}</td>
+                <td class="mono">${node.last_seen || ''}</td>
+                <td class="mono">${node.response_time_ms ? node.response_time_ms + ' ms' : '-'}</td>
+                <td>${this.renderUptimeCell(node.per_hour)}</td>
+                <td>${this.renderUptimeCell(node.per_day)}</td>
+                <td>${this.renderUptimeCell(node.per_month)}</td>
             </tr>
         `;
     }
 
     /**
-     * 渲染状态徽章
+     * Render SSL icon
+     */
+    renderSslIcon(ssl) {
+        if (ssl) {
+            return '<span class="ssl-badge ssl-yes">✓ SSL</span>';
+        } else {
+            return '<span class="ssl-badge ssl-no">✗ TCP</span>';
+        }
+    }
+
+    /**
+     * Render uptime cell with bar
+     */
+    renderUptimeCell(value) {
+        if (value === undefined || value === null) {
+            return '-';
+        }
+        
+        const percentage = (value * 100).toFixed(2);
+        let level = 'high';
+        if (value < 0.90) level = 'low';
+        else if (value < 0.98) level = 'medium';
+        
+        return `
+            <div class="uptime-bar">
+                <span class="uptime-value">${percentage}%</span>
+                <div class="uptime-progress">
+                    <div class="uptime-fill ${level}" style="width: ${Math.min(value * 100, 100)}%"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Render status badge
      */
     renderStatus(statusClass, statusText) {
         return `
@@ -70,33 +109,16 @@ class TableRenderer {
     }
 
     /**
-     * 渲染可用率进度条
-     */
-    renderUptimeBar(value) {
-        let level = 'high';
-        if (value < 90) level = 'low';
-        else if (value < 98) level = 'medium';
-        
-        return `
-            <div class="uptime-bar">
-                <span class="uptime-value">${value.toFixed(1)}%</span>
-                <div class="uptime-progress">
-                    <div class="uptime-fill ${level}" style="width: ${Math.min(value, 100)}%"></div>
-                </div>
-            </div>
-        `;
-    }
-
-    /**
-     * 渲染空状态
+     * Render empty state
      */
     renderEmpty() {
+        const emptyText = this.i18n ? this.i18n.t('empty') : 'No matching nodes found';
         this.tableBody.innerHTML = `
             <tr>
-                <td colspan="15">
+                <td colspan="13">
                     <div class="empty-state">
                         <div class="empty-state-icon">📭</div>
-                        <p>没有找到匹配的节点</p>
+                        <p>${emptyText}</p>
                     </div>
                 </td>
             </tr>
@@ -104,15 +126,16 @@ class TableRenderer {
     }
 
     /**
-     * 渲染加载状态
+     * Render loading state
      */
     renderLoading() {
+        const loadingText = this.i18n ? this.i18n.t('loading') : 'Loading node data...';
         this.tableBody.innerHTML = `
             <tr>
-                <td colspan="15">
+                <td colspan="13">
                     <div class="loading">
                         <div class="loading-spinner"></div>
-                        <span>正在加载节点数据...</span>
+                        <span>${loadingText}</span>
                     </div>
                 </td>
             </tr>
@@ -120,17 +143,17 @@ class TableRenderer {
     }
 
     /**
-     * 渲染统计信息
+     * Render statistics
      */
     renderStats(nodes, chain) {
         const total = nodes.length;
-        const online = nodes.filter(n => n.status === 'online').length;
+        const online = nodes.filter(n => n.status === 'open').length;
         const offline = total - online;
         const avgUptime = total > 0 
-            ? (nodes.reduce((sum, n) => sum + n.uptime, 0) / total).toFixed(2)
+            ? (nodes.reduce((sum, n) => sum + (n.per_month || 0), 0) / total * 100).toFixed(2)
             : 0;
 
-        document.getElementById('currentChain').textContent = chain.name;
+        document.getElementById('currentChain').textContent = `${chain.icon} ${chain.name}`;
         document.getElementById('totalNodes').textContent = total;
         document.getElementById('onlineNodes').textContent = online;
         document.getElementById('offlineNodes').textContent = offline;
@@ -138,7 +161,7 @@ class TableRenderer {
     }
 
     /**
-     * 渲染链选择器
+     * Render chain selector
      */
     renderChainSelect(chains, currentChainId, onChange) {
         const select = document.getElementById('chainSelect');
@@ -154,7 +177,7 @@ class TableRenderer {
     }
 
     /**
-     * 渲染更新时间
+     * Render update time
      */
     renderUpdateTime(timestamp) {
         document.getElementById('lastUpdate').textContent = 
@@ -162,59 +185,53 @@ class TableRenderer {
     }
 
     /**
-     * 工具：转义 HTML
+     * Render subscription chain selector
+     */
+    renderSubscriptionChainSelect(chains) {
+        const select = document.getElementById('subscribeChain');
+        if (!select) return;
+        
+        select.innerHTML = chains.map(chain => `
+            <option value="${chain.id}">
+                ${chain.icon} ${chain.name} (${chain.symbol})
+            </option>
+        `).join('');
+    }
+
+    /**
+     * Utility: Escape HTML
      */
     escapeHtml(text) {
+        if (!text) return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
     /**
-     * 工具：截断文本
-     */
-    truncate(text, maxLength) {
-        if (!text) return '';
-        if (text.length <= maxLength) return text;
-        return text.substring(0, maxLength - 3) + '...';
-    }
-
-    /**
-     * 工具：格式化数字（添加千位分隔符）
+     * Utility: Format number with thousands separator
      */
     formatNumber(num) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 
     /**
-     * 工具：格式化区块时间
-     */
-    formatBlocktime(timestamp) {
-        const date = new Date(timestamp);
-        return date.toLocaleString('zh-CN', {
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        }).replace(/\//g, '-');
-    }
-
-    /**
-     * 绑定复制按钮事件
+     * Bind copy button events
      */
     bindCopyButtons() {
         document.querySelectorAll('.copy-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 const text = btn.dataset.copy;
+                const copySuccess = this.i18n ? this.i18n.t('copySuccess') : 'Copied!';
+                
                 try {
                     await navigator.clipboard.writeText(text);
                     btn.classList.add('copied');
-                    btn.title = '复制成功！';
+                    btn.title = copySuccess;
                     setTimeout(() => {
                         btn.classList.remove('copied');
-                        btn.title = '复制节点地址';
+                        btn.title = this.i18n ? this.i18n.t('copyAddress') : 'Copy node address';
                     }, 2000);
                 } catch (err) {
                     const textarea = document.createElement('textarea');
@@ -224,10 +241,10 @@ class TableRenderer {
                     document.execCommand('copy');
                     document.body.removeChild(textarea);
                     btn.classList.add('copied');
-                    btn.title = '复制成功！';
+                    btn.title = copySuccess;
                     setTimeout(() => {
                         btn.classList.remove('copied');
-                        btn.title = '复制节点地址';
+                        btn.title = this.i18n ? this.i18n.t('copyAddress') : 'Copy node address';
                     }, 2000);
                 }
             });
@@ -235,5 +252,5 @@ class TableRenderer {
     }
 }
 
-// 导出单例
+// Export singleton
 window.tableRenderer = new TableRenderer();

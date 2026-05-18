@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "language": "中文",
+    "code": "zh"
+  },
+  "title": "Node Eye - 多链节点监控平台",
+  "subtitle": "多链节点监控平台",
+  "header": {
+    "updateTime": "更新时间:",
+    "stats": {
+      "currentChain": "当前链",
+      "totalNodes": "节点总数",
+      "onlineNodes": "在线节点",
+      "offlineNodes": "离线节点",
+      "avgUptime": "平均可用率"
+    }
+  },
+  "controls": {
+    "selectChain": "选择链:",
+    "search": "搜索:",
+    "searchPlaceholder": "输入节点地址搜索...",
+    "status": "状态:",
+    "statusAll": "全部",
+    "statusOnline": "在线",
+    "statusOffline": "离线",
+    "sort": "排序:",
+    "sortHeightDesc": "区块高度 ↓",
+    "sortHeightAsc": "区块高度 ↑",
+    "sortUptimeDesc": "可用率 ↓",
+    "sortUptimeAsc": "可用率 ↑",
+    "sortDayDesc": "日可用率 ↓",
+    "sortDayAsc": "日可用率 ↑",
+    "sortMonthDesc": "月可用率 ↓",
+    "sortMonthAsc": "月可用率 ↑"
+  },
+  "table": {
+    "index": "#",
+    "host": "节点地址",
+    "port": "端口",
+    "ssl": "SSL",
+    "height": "区块高度",
+    "version": "版本",
+    "protocol": "版本号",
+    "status": "在线状态",
+    "connectionTime": "连接时间",
+    "responseTime": "连接延时",
+    "uptimeHour": "小时可用率",
+    "uptimeDay": "日可用率",
+    "uptimeMonth": "月可用率"
+  },
+  "status": {
+    "online": "在线",
+    "offline": "离线",
+    "open": "开放",
+    "closed": "关闭"
+  },
+  "subscription": {
+    "title": "订阅节点更新",
+    "description": "每日获取您选择的区块链 JSON 报告",
+    "email": "邮箱地址",
+    "emailPlaceholder": "your@email.com",
+    "selectBlockchain": "选择区块链",
+    "subscribe": "订阅",
+    "success": "订阅成功！您将收到每日更新。",
+    "error": "订阅失败，请重试。",
+    "button": "📧 订阅"
+  },
+  "language": {
+    "switch": "语言",
+    "en": "English",
+    "zh": "中文"
+  },
+  "footer": {
+    "copyright": "Node Eye © 2026 | 数据来源：GitHub 仓库 | 纯静态架构",
+    "futureFeatures": "后续功能：Telegram Bot 告警 | 节点历史趋势 | 节点地图 | 节点异常分析"
+  },
+  "empty": "没有找到匹配的节点",
+  "loading": "正在加载节点数据...",
+  "copySuccess": "复制成功！",
+  "copyAddress": "复制节点地址"
+}

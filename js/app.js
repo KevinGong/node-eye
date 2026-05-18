@@ -1,39 +1,57 @@
 /**
- * App.js - 主应用逻辑
+ * App.js - Main Application Logic
+ * Updated to support i18n and new data structure
  */
 
 class NodeEyeApp {
     constructor() {
         this.chainsManager = window.chainsManager;
         this.renderer = window.tableRenderer;
+        this.subscriptionManager = window.subscriptionManager;
+        this.i18n = window.i18n;
         this.currentData = null;
         this.filteredNodes = [];
         
-        // 绑定 DOM 元素
+        // Bind DOM elements
         this.searchInput = document.getElementById('searchInput');
         this.statusFilter = document.getElementById('statusFilter');
         this.sortSelect = document.getElementById('sortSelect');
+        this.languageSelect = document.getElementById('languageSelect');
+        this.subscribeBtn = document.getElementById('subscribeBtn');
         
-        // 绑定事件
+        // Bind events
         this.bindEvents();
     }
 
     /**
-     * 初始化应用
+     * Initialize application
      */
     async init() {
         try {
-            // 加载链配置
+            // Initialize i18n first
+            await this.i18n.init();
+            
+            // Set language selector value
+            if (this.languageSelect) {
+                this.languageSelect.value = this.i18n.getCurrentLang();
+            }
+            
+            // Load chain configuration
             await this.chainsManager.loadChains();
             
-            // 渲染链选择器
+            // Render chain selector
             this.renderer.renderChainSelect(
                 this.chainsManager.getAllChains(),
                 this.chainsManager.getCurrentChain().id,
                 (chainId) => this.switchChain(chainId)
             );
             
-            // 加载默认链数据
+            // Render subscription chain selector
+            if (this.subscriptionManager) {
+                this.renderer.renderSubscriptionChainSelect(this.chainsManager.getAllChains());
+            }
+            
+            // Load default chain data
             await this.loadCurrentChain();
             
             console.log('Node Eye initialized successfully');
@@ -44,7 +62,7 @@ class NodeEyeApp {
     }
 
     /**
-     * 加载当前链数据
+     * Load current chain data
      */
     async loadCurrentChain() {
         this.renderer.renderLoading();
@@ -56,7 +74,7 @@ class NodeEyeApp {
             this.currentData = data;
             this.filteredNodes = [...data.nodes];
             
-            // 更新 UI
+            // Update UI
             this.renderer.renderUpdateTime(data.lastUpdate);
             this.renderer.renderStats(this.filteredNodes, this.chainsManager.getCurrentChain());
             this.applyFiltersAndSort();
@@ -68,59 +86,80 @@ class NodeEyeApp {
     }
 
     /**
-     * 切换链
+     * Switch chain
      */
     async switchChain(chainId) {
-        // 更新当前链
+        // Update current chain
         this.chainsManager.currentChain = 
             this.chainsManager.chains.find(c => c.id === chainId);
         
-        // 重置筛选条件
+        // Reset filters
         this.searchInput.value = '';
         this.statusFilter.value = 'all';
-        this.sortSelect.value = 'height-desc';
+        this.sortSelect.value = 'per_month-desc';
         
-        // 加载新链数据
+        // Load new chain data
         await this.loadCurrentChain();
     }
 
     /**
-     * 绑定事件
+     * Bind events
      */
     bindEvents() {
-        // 搜索输入
+        // Language switcher
+        if (this.languageSelect) {
+            this.languageSelect.addEventListener('change', async (e) => {
+                await this.i18n.setLanguage(e.target.value);
+                // Re-render table with new language
+                this.applyFiltersAndSort();
+            });
+        }
+        
+        // Subscribe button
+        if (this.subscribeBtn && this.subscriptionManager) {
+            this.subscribeBtn.addEventListener('click', () => {
+                this.subscriptionManager.openModal();
+            });
+        }
+        
+        // Search input
         this.searchInput.addEventListener('input', () => {
             this.applyFiltersAndSort();
         });
 
-        // 状态筛选
+        // Status filter
         this.statusFilter.addEventListener('change', () => {
             this.applyFiltersAndSort();
         });
 
-        // 排序选择
+        // Sort select
         this.sortSelect.addEventListener('change', () => {
             this.applyFiltersAndSort();
         });
 
-        // 表格头点击排序
+        // Table header click for sorting
         document.querySelectorAll('.node-table th[data-sort]').forEach(th => {
             th.addEventListener('click', () => {
                 const field = th.dataset.sort;
                 this.handleHeaderSort(field);
             });
         });
+        
+        // Listen for i18n updates
+        window.addEventListener('i18n:updated', () => {
+            this.applyFiltersAndSort();
+        });
     }
 
     /**
-     * 应用筛选和排序
+     * Apply filters and sort
      */
     applyFiltersAndSort() {
         if (!this.currentData) return;
 
         let nodes = [...this.currentData.nodes];
 
-        // 应用搜索筛选
+        // Apply search filter
         const searchTerm = this.searchInput.value.toLowerCase().trim();
         if (searchTerm) {
             nodes = nodes.filter(node => 
@@ -128,13 +167,13 @@ class NodeEyeApp {
             );
         }
 
-        // 应用状态筛选
+        // Apply status filter
         const statusFilter = this.statusFilter.value;
         if (statusFilter !== 'all') {
             nodes = nodes.filter(node => node.status === statusFilter);
         }
 
-        // 应用排序
+        // Apply sort
         const sortValue = this.sortSelect.value;
         this.sortNodes(nodes, sortValue);
 
@@ -143,7 +182,7 @@ class NodeEyeApp {
     }
 
     /**
-     * 排序节点
+     * Sort nodes
      */
     sortNodes(nodes, sortValue) {
         const [field, order] = sortValue.split('-');
@@ -153,10 +192,19 @@ class NodeEyeApp {
             let valueA = a[field];
             let valueB = b[field];
 
-            // 特殊处理
+            // Special handling for different field types
             if (field === 'host') {
                 valueA = valueA.toLowerCase();
                 valueB = valueB.toLowerCase();
+            } else if (field === 'ssl') {
+                valueA = valueA ? 1 : 0;
+                valueB = valueB ? 1 : 0;
+            } else if (field === 'last_seen') {
+                valueA = new Date(valueA || 0);
+                valueB = new Date(valueB || 0);
+            } else if (['per_hour', 'per_day', 'per_month', 'height', 'port', 'response_time_ms'].includes(field)) {
+                valueA = Number(valueA) || 0;
+                valueB = Number(valueB) || 0;
             }
 
             if (valueA < valueB) return isDesc ? 1 : -1;
@@ -166,25 +214,22 @@ class NodeEyeApp {
     }
 
     /**
-     * 处理表头点击排序
+     * Handle header click sort
      */
     handleHeaderSort(field) {
         const sortMap = {
             'host': 'host-desc',
-            'port': 'height-desc',
-            'proto': 'height-desc',
-            'utxoRoot': 'height-desc',
+            'port': 'port-desc',
+            'ssl': 'ssl-desc',
             'height': 'height-desc',
-            'blocktime': 'height-desc',
-            'version': 'height-desc',
-            'protocol': 'height-desc',
-            'connection': 'height-desc',
-            'connectionTime': 'height-desc',
+            'server_version': 'height-desc',
+            'protocol_version': 'height-desc',
             'status': 'height-desc',
-            'uptime': 'uptime-desc',
-            'hour': 'day-desc',
-            'day': 'day-desc',
-            'month': 'month-desc'
+            'last_seen': 'last_seen-desc',
+            'response_time_ms': 'response_time_ms-desc',
+            'per_hour': 'per_hour-desc',
+            'per_day': 'per_day-desc',
+            'per_month': 'per_month-desc'
         };
 
         const sortValue = sortMap[field] || 'height-desc';
@@ -193,7 +238,7 @@ class NodeEyeApp {
     }
 
     /**
-     * 自动刷新（可选功能）
+     * Auto refresh (optional feature)
      */
     startAutoRefresh(intervalMs = 60000) {
         setInterval(async () => {
@@ -203,11 +248,11 @@ class NodeEyeApp {
     }
 }
 
-// 启动应用
+// Start application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new NodeEyeApp();
     window.app.init();
     
-    // 可选：启用自动刷新（每 60 秒）
+    // Optional: enable auto-refresh (every 60 seconds)
     // window.app.startAutoRefresh(60000);
 });

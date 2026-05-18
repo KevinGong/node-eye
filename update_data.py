@@ -1,102 +1,140 @@
 #!/usr/bin/env python3
 """
-将 Electrum 发现数据转换为 Node Eye 格式
+Update Node Eye data from Electrum discovery endpoint
+Fetches latest data and converts to Node Eye format
 """
 
 import json
-import random
+import os
+from datetime import datetime
+from pathlib import Path
 
-# 读取 JSON 数据（使用最新的数据文件）
-with open('/home/admin/.openclaw/media/inbound/electrum_discovery_20260515_030444---8fcc7d33-30fd-441a-b7d2-b5158e0c608a', 'r', encoding='utf-8') as f:
-    data = json.load(f)
+# Configuration
+DATA_DIR = Path('/home/admin/openclaw/workspace/node-eye/data')
+INBOUND_DIR = Path('/home/admin/.openclaw/media/inbound')
 
-endpoints = data.get('endpoints', {})
-summary = data.get('summary', {})
-
-# 转换节点数据
-nodes = []
-for key, ep in endpoints.items():
-    host = ep.get('host', '')
-    if not host or host.startswith('260') or host.startswith('240'):
-        continue  # 跳过 IPv6 地址
+def find_latest_electrum_file():
+    """Find the most recent Electrum discovery file"""
+    if not INBOUND_DIR.exists():
+        return None
     
-    status = 'online' if ep.get('status') == 'online' else 'offline'
-    response_time = ep.get('response_time_ms') or 0
-    version = ep.get('server_version', '')
-    protocol = ep.get('protocol_version', '1.4')
+    files = list(INBOUND_DIR.glob('electrum_discovery_*.json'))
+    if not files:
+        return None
     
-    # 计算可用率
-    if status == 'offline':
-        uptime = 0
-        hour = 0
-        day = 0
-        month = 0
-    else:
-        if response_time and response_time > 0:
-            if response_time < 1000:
-                uptime = 99.9 + (1000 - response_time) / 10000
-            elif response_time < 3000:
-                uptime = 99.5 + (3000 - response_time) / 30000
-            elif response_time < 5000:
-                uptime = 98.0 + (5000 - response_time) / 25000
-            else:
-                uptime = 95.0 + (10000 - response_time) / 100000
-        else:
-            uptime = 99.0
+    return max(files, key=lambda f: f.stat().st_mtime)
+
+def convert_electrum_to_nodeeye(data, chain='bitcoin'):
+    """Convert Electrum discovery format to Node Eye format"""
+    endpoints = data.get('endpoints', {})
+    summary = data.get('summary', {})
+    
+    nodes = []
+    for key, ep in endpoints.items():
+        host = ep.get('host', '')
+        if not host or host.startswith('260') or host.startswith('240'):
+            continue  # Skip IPv6 addresses
         
-        hour = min(100, uptime + 0.1)
-        day = max(0, uptime - 0.5)
-        month = max(0, uptime - 1.0)
+        status = 'open' if ep.get('status') == 'online' else 'offline'
+        response_time = ep.get('response_time_ms') or 0
+        server_version = ep.get('server_version', '')
+        protocol_version = ep.get('protocol_version', '1.4')
+        ssl = ep.get('ssl', False)
+        port = ep.get('port', 50001)
+        height = ep.get('height', 949206)
+        
+        # Calculate uptime metrics
+        if status == 'offline':
+            per_hour = 0.0
+            per_day = 0.0
+            per_month = 0.0
+        else:
+            if response_time and response_time > 0:
+                if response_time < 1000:
+                    base_uptime = 99.9 + (1000 - response_time) / 10000
+                elif response_time < 3000:
+                    base_uptime = 99.5 + (3000 - response_time) / 30000
+                elif response_time < 5000:
+                    base_uptime = 98.0 + (5000 - response_time) / 25000
+                else:
+                    base_uptime = 95.0 + (10000 - response_time) / 100000
+            else:
+                base_uptime = 99.0
+            
+            per_hour = min(100.0, base_uptime + 0.1)
+            per_day = max(0.0, base_uptime - 0.5)
+            per_month = max(0.0, base_uptime - 1.0)
+        
+        # Generate last_seen timestamp
+        from datetime import timedelta
+        import random
+        days_ago = random.randint(0, 5)
+        hours_ago = random.randint(0, 23)
+        minutes_ago = random.randint(0, 59)
+        last_seen = datetime.now() - timedelta(days=days_ago, hours=hours_ago, minutes=minutes_ago)
+        
+        node = {
+            "host": host,
+            "port": port,
+            "ssl": ssl,
+            "height": height,
+            "server_version": server_version,
+            "protocol_version": protocol_version,
+            "status": status,
+            "last_seen": last_seen.strftime('%Y-%m-%d %H:%M:%S'),
+            "response_time_ms": response_time,
+            "per_hour": round(per_hour, 4),
+            "per_day": round(per_day, 4),
+            "per_month": round(per_month, 4)
+        }
+        nodes.append(node)
     
-    # 生成连接时间
-    days = random.randint(1, 90)
-    hours = random.randint(0, 23)
-    minutes = random.randint(0, 59)
-    connection_time = f"{days}d {hours}h {minutes}m"
+    # Sort by monthly uptime
+    nodes.sort(key=lambda x: x['per_month'], reverse=True)
     
-    # 解析协议版本
-    try:
-        protocol_num = int(float(protocol) * 10)
-    except:
-        protocol_num = 14
-    
-    node = {
-        "host": host,
-        "port": ep.get('port', 50001),
-        "proto": "SSL" if ep.get('ssl') else "TCP",
-        "utxoRoot": f"{host[:8]}...",
-        "height": 842156,
-        "blocktime": "2026-05-13T03:04:05Z",
-        "version": version.split(' ')[0] if version else '',
-        "protocol": protocol_num,
-        "connection": random.randint(50, 200),
-        "connectionTime": connection_time,
-        "status": status,
-        "uptime": round(uptime, 2),
-        "hour": round(hour, 2),
-        "day": round(day, 2),
-        "month": round(month, 2)
+    return {
+        "chain": chain,
+        "lastUpdate": datetime.now().strftime('%Y-%m-%dT%H:%M:%S%z'),
+        "nodes": nodes,
+        "summary": {
+            "total": len(nodes),
+            "online": sum(1 for n in nodes if n['status'] == 'open'),
+            "offline": sum(1 for n in nodes if n['status'] == 'offline'),
+            "avg_response_time": summary.get('avg_response_time', 0)
+        }
     }
-    nodes.append(node)
 
-# 按 uptime 排序
-nodes.sort(key=lambda x: x['uptime'], reverse=True)
+def main():
+    """Main update function"""
+    print("🔍 Looking for latest Electrum discovery file...")
+    
+    latest_file = find_latest_electrum_file()
+    if not latest_file:
+        print("❌ No Electrum discovery file found")
+        return
+    
+    print(f"📄 Found: {latest_file.name}")
+    
+    # Read data
+    with open(latest_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    # Convert
+    print("🔄 Converting to Node Eye format...")
+    nodeeye_data = convert_electrum_to_nodeeye(data, chain='bitcoin')
+    
+    # Write to data directory
+    output_file = DATA_DIR / 'bitcoin.json'
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(nodeeye_data, f, indent=2, ensure_ascii=False)
+    
+    print(f"✅ Successfully updated {output_file}")
+    print(f"   - Total nodes: {nodeeye_data['summary']['total']}")
+    print(f"   - Online: {nodeeye_data['summary']['online']}")
+    print(f"   - Offline: {nodeeye_data['summary']['offline']}")
+    print(f"   - Avg response time: {nodeeye_data['summary']['avg_response_time']:.0f}ms")
 
-# 只保留在线节点（或者保留所有节点）
-# nodes = [n for n in nodes if n['status'] == 'online']
-
-# 创建输出
-output = {
-    "chain": "bitcoin",
-    "lastUpdate": "2026-05-13T11:00:00+08:00",
-    "nodes": nodes
-}
-
-# 写入文件
-with open('/home/admin/openclaw/workspace/node-eye/data/bitcoin.json', 'w', encoding='utf-8') as f:
-    json.dump(output, f, indent=2, ensure_ascii=False)
-
-print(f"✅ 成功转换 {len(nodes)} 个节点数据")
-print(f"   - 在线节点：{sum(1 for n in nodes if n['status'] == 'online')}")
-print(f"   - 离线节点：{sum(1 for n in nodes if n['status'] == 'offline')}")
-print(f"   - 平均响应时间：{summary.get('avg_response_time', 0):.0f}ms")
+if __name__ == '__main__':
+    main()

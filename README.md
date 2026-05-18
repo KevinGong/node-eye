@@ -1,84 +1,154 @@
-# Node Eye - 多链区块链志愿者节点监控平台
+# Node Eye - Multi-Chain Blockchain Node Monitoring Platform
 
 <div align="center">
 
-👁️ **实时监控 · 多链支持 · 纯静态架构**
+👁️ **Real-time Monitoring · Multi-Chain Support · Subscription Feature**
 
-一个现代、美观、科技感十足的区块链节点监控平台
+A modern, beautiful, tech-styled blockchain node monitoring platform
 
-[在线演示](#) · [功能特性](#功能特性) · [部署指南](#部署指南) · [数据格式](#数据格式)
+[Online Demo](#) · [Features](#features) · [Deployment](#deployment) · [API](#api)
 
 </div>
 
 ---
 
-## 📖 项目简介
+## 📖 Introduction
 
-Node Eye 是一个纯静态的区块链志愿者节点监控平台，参考 [Bitcoin Eye](https://1209k.com/bitcoin-eye/ele.php) 的设计风格，采用更现代的深色科技风 UI，类似 Grafana/Prometheus 监控大屏的视觉效果。
+Node Eye is a modern blockchain node monitoring platform with a dark tech-style UI, inspired by [Bitcoin Eye](https://1209k.com/bitcoin-eye/ele.php) and designed like Grafana/Prometheus monitoring dashboards.
 
-项目采用 **纯静态架构**（HTML + CSS + JavaScript），可直接部署到 GitHub Pages，无需后端服务。数据来源于 GitHub 仓库中的 JSON 文件，支持多链切换和实时刷新。
+**Frontend**: Pure static architecture (HTML + CSS + JavaScript), deployable to GitHub Pages  
+**Backend**: Optional Flask API for subscription management and daily email reports
 
-## ✨ 功能特性
+## ✨ Features
 
-### 核心功能
-- 🔗 **多链支持** - Bitcoin、Litecoin、Dogecoin、Ethereum，后续可扩展更多链
-- 📊 **统计面板** - 节点总数、正常/异常节点数、平均可用率
-- 🔍 **搜索筛选** - 按 Host 搜索、按状态筛选（全部/正常/异常）
-- 📈 **排序功能** - 支持按 Height、Uptime、Day、Month 升序/降序排序
-- 📋 **序号显示** - 每行节点显示序号，方便定位
-- 📋 **一键复制** - 点击 Host 旁的复制按钮，快速复制 Host:Port
-- 📱 **响应式设计** - 支持桌面端和移动端，表格支持横向滚动
+### Core Features
+- 🔗 **Multi-Chain Support** - Bitcoin, Litecoin, Dogecoin, Ethereum, and more
+- 📊 **Statistics Dashboard** - Total nodes, online/offline counts, average uptime
+- 🔍 **Search & Filter** - Search by host, filter by status (all/online/offline)
+- 📈 **Sorting** - Sort by height, hourly/daily/monthly uptime (ascending/descending)
+- 📋 **One-Click Copy** - Copy node address (host:port) instantly
+- 📱 **Responsive Design** - Desktop and mobile support, horizontal scroll for tables
 
-### 监控字段
-| 字段 | 说明 |
-|------|------|
-| Host | 节点地址 |
-| Port | 端口号 |
-| Proto | 协议类型 |
-| UTXO Root | UTXO 根哈希（截断显示） |
-| Height | 区块高度 |
-| Blocktime | 区块时间 |
-| Version | 节点版本 |
-| Protocol | 协议版本 |
-| Connection | 连接数 |
-| ConnectionTime | 连接时长 |
-| Status | 状态（正常/异常） |
-| Uptime | 总可用率 |
-| Hour | 小时可用率（带进度条） |
-| Day | 日可用率（带进度条） |
-| Month | 月可用率（带进度条） |
+### 🆕 New Features (v2.0)
+- 🌐 **Multi-Language Support** - English and Chinese (easily extensible)
+- 📧 **Subscription System** - Subscribe to daily JSON reports for your preferred blockchain
+- 📊 **Enhanced Table Columns** - SSL status, response time, connection time, and more
 
-### 视觉效果
-- 🎨 深色科技风主题（#0a0e1a 背景）
-- 💙 科技蓝/紫色渐变点缀
-- ✅ 状态颜色：正常绿色、异常红色
-- 🌊 动态脉冲动画（在线状态）
-- 📊 可用率进度条（高/中/低分级着色）
+### Monitored Fields
+| Field | Description |
+|-------|-------------|
+| Host | Node address |
+| Port | Port number |
+| SSL | SSL/TLS enabled (✓/✗) |
+| Height | Block height |
+| Version | Server version |
+| Protocol | Protocol version |
+| Status | Connection status (open/offline) |
+| Connection Time | Last seen timestamp |
+| Response Time | Response time in ms |
+| Hourly Uptime | Hourly uptime percentage |
+| Daily Uptime | Daily uptime percentage |
+| Monthly Uptime | Monthly uptime percentage |
 
-## 🚀 快速开始
+### Visual Effects
+- 🎨 Dark tech theme (#0a0e1a background)
+- 💙 Tech blue/purple gradient accents
+- ✅ Status colors: Green (online), Red (offline)
+- 🌊 Pulse animation for online status
+- 📊 Uptime progress bars with color grading
 
-### 本地开发
+## 🚀 Quick Start
+
+### Local Development
 ```bash
-# 克隆项目
+# Clone repository
 git clone https://github.com/YOUR_USERNAME/node-eye.git
 cd node-eye
 
-# 使用任意静态服务器启动
-# 方式 1: Python
+# Start with any static server
+# Option 1: Python
 python -m http.server 8080
 
-# 方式 2: Node.js (需要安装 http-server)
+# Option 2: Node.js (requires http-server)
 npx http-server -p 8080
 
-# 方式 3: VS Code Live Server 插件
-# 直接右键 index.html → "Open with Live Server"
+# Option 3: VS Code Live Server
+# Right-click index.html → "Open with Live Server"
 ```
 
-然后访问 `http://localhost:8080`
+Then visit `http://localhost:8080`
 
-### 部署到 GitHub Pages
+### Backend API (Optional)
 
-1. **创建仓库**
+The backend provides subscription management and daily email sending:
+
+```bash
+# Install dependencies
+cd backend
+pip install -r requirements.txt
+
+# Set environment variables
+export NODEEYE_EMAIL_FROM="your-email@gmail.com"
+export NODEEYE_EMAIL_PASSWORD="your-app-password"
+export NODEEYE_SMTP_SERVER="smtp.gmail.com"
+export NODEEYE_SMTP_PORT="587"
+
+# Start the API server
+python app.py
+
+# Server runs on http://localhost:5000
+```
+
+### API Endpoints
+
+#### Subscribe to Daily Reports
+```bash
+POST /api/subscribe
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "chainId": "bitcoin"
+}
+```
+
+Response:
+```json
+{
+  "success": true,
+  "message": "Subscription successful",
+  "email": "user@example.com",
+  "chainId": "bitcoin"
+}
+```
+
+#### Get All Subscriptions (Admin)
+```bash
+GET /api/subscriptions
+```
+
+#### Send Daily Emails (Cron Job)
+```bash
+POST /api/send-daily-emails
+```
+
+### Daily Email Cron Job
+
+Set up a cron job to send daily emails automatically:
+
+```bash
+# Edit crontab
+crontab -e
+
+# Add this line to send emails at 9:00 AM UTC daily
+0 9 * * * /usr/bin/python3 /path/to/node-eye/backend/send_daily_emails.py >> /var/log/nodeeye_emails.log 2>&1
+```
+
+See `backend/cron-example.sh` for detailed configuration.
+
+### Deploy to GitHub Pages
+
+1. **Create Repository**
    ```bash
    git init
    git add .
@@ -87,147 +157,162 @@ npx http-server -p 8080
    git push -u origin main
    ```
 
-2. **启用 GitHub Pages**
-   - 进入仓库 Settings → Pages
-   - Source 选择 `main` 分支和 `/ (root)` 目录
-   - 保存后等待部署完成
+2. **Enable GitHub Pages**
+   - Go to Settings → Pages
+   - Select `main` branch and `/ (root)` directory
+   - Save and wait for deployment
 
-3. **访问页面**
-   - 你的网站将在 `https://YOUR_USERNAME.github.io/node-eye/` 上线
+3. **Access Your Site**
+   - Your site will be live at `https://YOUR_USERNAME.github.io/node-eye/`
 
-## 📁 目录结构
+## 📁 Directory Structure
 
 ```
 node-eye/
-├── index.html          # 主页面
+├── index.html                 # Main HTML file
 ├── css/
-│   └── style.css       # 样式文件（深色科技风）
+│   └── style.css             # Stylesheet
 ├── js/
-│   ├── app.js          # 主应用逻辑
-│   ├── chains.js       # 链配置管理
-│   └── renderer.js     # 表格渲染
+│   ├── i18n.js               # Internationalization module
+│   ├── chains.js             # Chain configuration manager
+│   ├── renderer.js           # Table renderer
+│   ├── app.js                # Main application logic
+│   └── subscription.js       # Subscription handler
+├── locales/
+│   ├── en.json               # English translations
+│   └── zh.json               # Chinese translations
 ├── data/
-│   ├── chains.json     # 支持的链列表配置
-│   ├── bitcoin.json    # Bitcoin 节点数据
-│   ├── litecoin.json   # Litecoin 节点数据
-│   ├── dogecoin.json   # Dogecoin 节点数据
-│   └── ethereum.json   # Ethereum 节点数据
-└── README.md           # 项目说明
+│   ├── chains.json           # Chain configuration
+│   ├── bitcoin.json          # Bitcoin node data
+│   ├── ethereum.json         # Ethereum node data
+│   └── ...                   # Other chains
+├── backend/                   # Optional backend API
+│   ├── app.py                # Flask API server
+│   ├── send_daily_emails.py  # Daily email sender
+│   ├── requirements.txt      # Python dependencies
+│   └── cron-example.sh       # Cron job example
+├── convert_data.py           # Data conversion script
+└── README.md                 # This file
 ```
 
-## 📝 数据格式
+## 🌐 Multi-Language Support
 
-### chains.json - 链配置
-```json
-{
-  "chains": [
-    {
-      "id": "bitcoin",
-      "name": "Bitcoin",
-      "symbol": "BTC",
-      "icon": "₿",
-      "color": "#f7931a",
-      "dataFile": "bitcoin.json"
-    }
-  ],
-  "lastUpdate": "2026-05-12T17:00:00+08:00"
-}
-```
+Node Eye supports multiple languages with easy switching:
 
-### xxx.json - 节点数据
+- **Default**: English
+- **Available**: English (🇺🇸), Chinese (🇨🇳)
+- **Add More**: Create `locales/<lang>.json` following the existing format
+
+Language preference is saved in localStorage and persists across sessions.
+
+## 📧 Subscription Feature
+
+Users can subscribe to receive daily JSON reports for their preferred blockchain:
+
+1. Click the "📧 Subscribe" button
+2. Enter email address
+3. Select blockchain
+4. Click "Subscribe"
+
+Subscriptions are stored in:
+- **Backend**: SQLite database (when API is available)
+- **Frontend**: localStorage (fallback mode)
+
+Daily emails include:
+- Summary statistics (total, online, offline nodes)
+- Last update timestamp
+- Attached JSON file with detailed node data
+
+## 🔧 Configuration
+
+### Environment Variables (Backend)
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NODEEYE_EMAIL_FROM` | Sender email address | `noreply@nodeeye.io` |
+| `NODEEYE_EMAIL_PASSWORD` | SMTP password | (empty) |
+| `NODEEYE_SMTP_SERVER` | SMTP server | `smtp.gmail.com` |
+| `NODEEYE_SMTP_PORT` | SMTP port | `587` |
+| `NODEEYE_PORT` | API server port | `5000` |
+
+### Data Format
+
+Node data JSON structure:
+
 ```json
 {
   "chain": "bitcoin",
-  "lastUpdate": "2026-05-12T17:00:00+08:00",
+  "lastUpdate": "2026-05-18T11:00:00+08:00",
   "nodes": [
     {
-      "host": "node1.bitcoin.org",
-      "port": 8333,
-      "proto": "TCP",
-      "utxoRoot": "a1b2c3d4e5f6...",
-      "height": 842156,
-      "blocktime": "2026-05-12T16:58:32Z",
-      "version": "25.0.0",
-      "protocol": 70016,
-      "connection": 125,
-      "connectionTime": "45d 12h 34m",
-      "status": "online",
-      "uptime": 99.98,
-      "hour": 100,
-      "day": 99.95,
-      "month": 99.87
+      "host": "node.example.com",
+      "port": 50002,
+      "ssl": true,
+      "height": 949206,
+      "server_version": "Fulcrum 2.1.0",
+      "protocol_version": "1.4",
+      "status": "open",
+      "last_seen": "2026-05-18 10:30:00",
+      "response_time_ms": 2478,
+      "per_hour": 1.0000,
+      "per_day": 1.0000,
+      "per_month": 0.9988
     }
   ]
 }
 ```
 
-### 字段说明
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| host | string | ✅ | 节点主机地址 |
-| port | number | ✅ | 节点端口 |
-| proto | string | ✅ | 协议类型（TCP/UDP 等） |
-| utxoRoot | string | ✅ | UTXO 根哈希 |
-| height | number | ✅ | 区块高度 |
-| blocktime | string | ✅ | 区块时间（ISO 8601） |
-| version | string | ✅ | 节点软件版本 |
-| protocol | number | ✅ | 协议版本号 |
-| connection | number | ✅ | 当前连接数 |
-| connectionTime | string | ✅ | 连接时长描述 |
-| status | string | ✅ | `online` 或 `offline` |
-| uptime | number | ✅ | 总可用率百分比 |
-| hour | number | ✅ | 小时可用率百分比 |
-| day | number | ✅ | 日可用率百分比 |
-| month | number | ✅ | 月可用率百分比 |
+## 🛠️ Development
 
-## 🔧 扩展开发
+### Update Node Data
 
-### 添加新链
-1. 在 `data/chains.json` 中添加新链配置
-2. 创建对应的 `data/<chain-id>.json` 节点数据文件
-3. 刷新页面即可看到新链选项
+Run the conversion script to update node data from Electrum discovery:
 
-### 添加自动刷新
-在 `js/app.js` 底部取消注释：
-```javascript
-window.app.startAutoRefresh(60000); // 60 秒刷新
+```bash
+python3 convert_data.py
 ```
 
-### 自定义样式
-编辑 `css/style.css`，修改 CSS 变量：
-```css
-:root {
-    --bg-primary: #0a0e1a;      /* 主背景色 */
-    --accent-blue: #3b82f6;     /* 强调蓝色 */
-    --accent-purple: #8b5cf6;   /* 强调紫色 */
-    --status-online: #10b981;   /* 在线状态色 */
-    --status-offline: #ef4444;  /* 离线状态色 */
-}
+Or use the update script:
+
+```bash
+python3 update_data.py
 ```
 
-## 🚀 后续功能规划
+### Add New Chain
 
-- [ ] Telegram Bot 告警 - 节点异常时发送通知
-- [ ] 节点历史趋势 - 可用率变化曲线图
-- [ ] 节点地图 - 全球节点地理分布
-- [ ] 节点异常分析 - 异常原因统计和告警
-- [ ] 自定义告警阈值 - 可配置可用率告警线
-- [ ] 数据导出 - CSV/JSON 导出功能
-- [ ] API 接口 - 提供 RESTful API 供第三方调用
+1. Add chain to `data/chains.json`:
+   ```json
+   {
+     "id": "newchain",
+     "name": "New Chain",
+     "symbol": "NEW",
+     "icon": "🆕",
+     "color": "#123456",
+     "dataFile": "newchain.json"
+   }
+   ```
 
-## 📄 许可证
+2. Create `data/newchain.json` with node data
 
-MIT License
+3. The chain will appear in the selector automatically
 
-## 🙏 致谢
+## 📝 License
 
-- 灵感来源：[Bitcoin Eye](https://1209k.com/bitcoin-eye/ele.php)
-- UI 风格参考：Grafana、Prometheus 监控大屏
+MIT License - See LICENSE file for details
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📞 Support
+
+- GitHub Issues: Report bugs or request features
+- Email: support@nodeeye.io (for subscription issues)
 
 ---
 
 <div align="center">
 
-**Node Eye** © 2026 | 纯静态架构 · 开源免费
+**Node Eye** © 2026 | Built with ❤️ for the blockchain community
 
 </div>

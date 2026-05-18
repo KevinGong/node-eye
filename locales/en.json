@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "language": "English",
+    "code": "en"
+  },
+  "title": "Node Eye - Multi-Chain Node Monitoring Platform",
+  "subtitle": "Multi-Chain Node Monitoring Platform",
+  "header": {
+    "updateTime": "Updated:",
+    "stats": {
+      "currentChain": "Chain",
+      "totalNodes": "Total Nodes",
+      "onlineNodes": "Online",
+      "offlineNodes": "Offline",
+      "avgUptime": "Avg Uptime"
+    }
+  },
+  "controls": {
+    "selectChain": "Select Chain:",
+    "search": "Search:",
+    "searchPlaceholder": "Search by node address...",
+    "status": "Status:",
+    "statusAll": "All",
+    "statusOnline": "Online",
+    "statusOffline": "Offline",
+    "sort": "Sort:",
+    "sortHeightDesc": "Height ↓",
+    "sortHeightAsc": "Height ↑",
+    "sortUptimeDesc": "Uptime ↓",
+    "sortUptimeAsc": "Uptime ↑",
+    "sortDayDesc": "Daily ↓",
+    "sortDayAsc": "Daily ↑",
+    "sortMonthDesc": "Monthly ↓",
+    "sortMonthAsc": "Monthly ↑"
+  },
+  "table": {
+    "index": "#",
+    "host": "Host",
+    "port": "Port",
+    "ssl": "SSL",
+    "height": "Height",
+    "version": "Version",
+    "protocol": "Protocol",
+    "status": "Status",
+    "connectionTime": "Connection Time",
+    "responseTime": "Response Time",
+    "uptimeHour": "Hourly",
+    "uptimeDay": "Daily",
+    "uptimeMonth": "Monthly"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "open": "Open",
+    "closed": "Closed"
+  },
+  "subscription": {
+    "title": "Subscribe to Node Updates",
+    "description": "Get daily JSON reports for your preferred blockchain",
+    "email": "Email Address",
+    "emailPlaceholder": "your@email.com",
+    "selectBlockchain": "Select Blockchain",
+    "subscribe": "Subscribe",
+    "success": "Successfully subscribed! You'll receive daily updates.",
+    "error": "Subscription failed. Please try again.",
+    "button": "📧 Subscribe"
+  },
+  "language": {
+    "switch": "Language",
+    "en": "English",
+    "zh": "中文"
+  },
+  "footer": {
+    "copyright": "Node Eye © 2026 | Data Source: GitHub Repository | Pure Static Architecture",
+    "futureFeatures": "Coming Soon: Telegram Bot Alerts | Node History Trends | Node Map | Node Anomaly Analysis"
+  },
+  "empty": "No matching nodes found",
+  "loading": "Loading node data...",
+  "copySuccess": "Copied!",
+  "copyAddress": "Copy node address"
+}

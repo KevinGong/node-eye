@@ -1,5 +1,6 @@
 /**
- * Chains.js - 链配置管理
+ * Chains.js - Chain Configuration Management
+ * Manages blockchain chain settings and data loading
  */
 
 class ChainsManager {
@@ -7,10 +8,11 @@ class ChainsManager {
         this.chains = [];
         this.currentChain = null;
         this.dataPath = 'data/';
+        this.lastUpdate = null;
     }
 
     /**
-     * 加载链配置
+     * Load chain configuration from chains.json
      */
     async loadChains() {
         try {
@@ -33,7 +35,7 @@ class ChainsManager {
     }
 
     /**
-     * 加载指定链的节点数据
+     * Load node data for specified chain
      */
     async loadChainData(chainId) {
         try {
@@ -54,44 +56,44 @@ class ChainsManager {
     }
 
     /**
-     * 获取当前链
+     * Get current chain
      */
     getCurrentChain() {
         return this.currentChain;
     }
 
     /**
-     * 获取所有链
+     * Get all chains
      */
     getAllChains() {
         return this.chains;
     }
 
     /**
-     * 格式化更新时间
+     * Format update time for display
      */
     formatUpdateTime(timestamp) {
         const date = new Date(timestamp);
         const now = new Date();
         const diff = now - date;
         
-        // 如果是一分钟之内
+        // Less than 1 minute ago
         if (diff < 60000) {
-            return '刚刚更新';
+            return 'Just now';
         }
-        // 如果是一小时之内
+        // Less than 1 hour ago
         if (diff < 3600000) {
             const minutes = Math.floor(diff / 60000);
-            return `${minutes}分钟前`;
+            return `${minutes} minutes ago`;
         }
-        // 如果是今天
+        // Today
         if (diff < 86400000) {
             const hours = Math.floor(diff / 3600000);
-            return `${hours}小时前`;
+            return `${hours} hours ago`;
         }
         
-        // 否则显示完整日期
-        return date.toLocaleString('zh-CN', {
+        // Show full date
+        return date.toLocaleString('en-US', {
             month: '2-digit',
             day: '2-digit',
             hour: '2-digit',
@@ -100,5 +102,5 @@ class ChainsManager {
     }
 }
 
-// 导出单例
+// Export singleton
 window.chainsManager = new ChainsManager();

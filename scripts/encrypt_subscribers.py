@@ -70,7 +70,7 @@ def save_subscribers(data: dict):
     encrypt_json_to_file(data, str(enc_file))
 
 def add_subscriber(email: str, chain_id: str):
-    """Add a new subscriber"""
+    """Add a new subscriber - Direct save without verification"""
     data = load_subscribers()
     
     # Check if already subscribed
@@ -80,9 +80,9 @@ def add_subscriber(email: str, chain_id: str):
             sub['updated_at'] = datetime.now().isoformat()
             save_subscribers(data)
             print(f"✅ Updated subscription for {email}")
-            return
+            return True
     
-    # Add new subscriber
+    # Add new subscriber - Direct save, no verification needed
     data['subscribers'].append({
         'email': email,
         'chain_id': chain_id,
@@ -92,19 +92,12 @@ def add_subscriber(email: str, chain_id: str):
     
     save_subscribers(data)
     print(f"✅ Added subscriber: {email} ({chain_id})")
+    return True
 
 def remove_subscriber(email: str):
-    """Remove a subscriber"""
-    data = load_subscribers()
-    
-    for i, sub in enumerate(data['subscribers']):
-        if sub['email'] == email:
-            removed = data['subscribers'].pop(i)
-            save_subscribers(data)
-            print(f"✅ Removed subscriber: {email}")
-            return removed
-    
-    print(f"❌ Subscriber not found: {email}")
+    """Remove a subscriber - Deprecated, unsubscribe disabled"""
+    print("⚠️  Unsubscribe functionality is disabled")
+    print("   Contact administrator to remove subscription")
     return None
 
 def list_subscribers():

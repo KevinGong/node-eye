@@ -1,4 +1,4 @@
-/* Node Eye - 深色科技风样式 */
+/* Node Eye - Dark Tech Theme Styles */
 
 :root {
     --bg-primary: #0a0e1a;
@@ -34,12 +34,12 @@ body {
 }
 
 .app-container {
-    max-width: 100%;
+    max-width: 1600px;
     margin: 0 auto;
     padding: 20px;
 }
 
-/* ========== 头部区域 ========== */
+/* ========== Header Area ========== */
 .header {
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
     border-radius: 16px;
@@ -99,13 +99,48 @@ body {
     font-size: 0.85rem;
 }
 
-.update-time .value {
-    color: var(--accent-cyan);
-    font-weight: 600;
-    font-family: 'Consolas', 'Monaco', monospace;
+/* Language Switcher */
+.language-switcher {
+    display: inline-block;
+    margin-left: 16px;
 }
 
-/* ========== 统计卡片 ========== */
+.language-switcher .control-select {
+    min-width: 120px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+}
+
+/* Subscribe Button */
+.btn-subscribe {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    color: var(--text-primary);
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 16px;
+}
+
+.btn-subscribe:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Stats Cards */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -113,31 +148,30 @@ body {
 }
 
 .stat-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px;
     background: var(--bg-primary);
     border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     border: 1px solid var(--border-color);
     transition: all 0.3s ease;
 }
 
 .stat-card:hover {
     transform: translateY(-2px);
-    border-color: var(--accent-blue);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    box-shadow: var(--shadow-glow);
 }
 
 .stat-icon {
-    font-size: 2rem;
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
-    background: var(--bg-secondary);
+    font-size: 1.8rem;
+    border-radius: 8px;
+    background: var(--bg-card);
 }
 
 .stat-info {
@@ -148,15 +182,13 @@ body {
 
 .stat-label {
     color: var(--text-secondary);
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 0.8rem;
 }
 
 .stat-value {
-    font-size: 1.5rem;
-    font-weight: 700;
     color: var(--text-primary);
+    font-size: 1.4rem;
+    font-weight: 700;
 }
 
 .stat-value.online {
@@ -167,40 +199,39 @@ body {
     color: var(--status-offline);
 }
 
-/* ========== 控制栏 ========== */
+/* ========== Control Bar ========== */
 .control-bar {
     display: flex;
-    flex-wrap: wrap;
     gap: 16px;
-    padding: 16px 20px;
+    padding: 16px;
     background: var(--bg-secondary);
     border-radius: 12px;
-    margin-bottom: 20px;
     border: 1px solid var(--border-color);
-    align-items: flex-end;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 .control-group {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-    min-width: 150px;
+    align-items: center;
+    gap: 8px;
     flex: 1;
+    min-width: 200px;
 }
 
 .control-label {
     color: var(--text-secondary);
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+    white-space: nowrap;
 }
 
 .control-select,
 .control-input {
-    padding: 10px 14px;
+    flex: 1;
+    padding: 8px 12px;
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 6px;
     color: var(--text-primary);
     font-size: 0.9rem;
     transition: all 0.2s ease;
@@ -222,24 +253,25 @@ body {
     color: var(--text-muted);
 }
 
-/* ========== 表格区域 ========== */
+/* ========== Table Area - Responsive Design ========== */
 .table-container {
     background: var(--bg-secondary);
     border-radius: 12px;
     border: 1px solid var(--border-color);
     margin-bottom: 20px;
-    max-width: 100%;
+    overflow: hidden;
 }
 
 .node-table-wrapper {
+    width: 100%;
     overflow-x: auto;
-    overflow-y: visible;
 }
 
 .node-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    table-layout: auto;
 }
 
 .node-table thead {
@@ -250,7 +282,7 @@ body {
 }
 
 .node-table th {
-    padding: 10px 8px;
+    padding: 12px 10px;
     text-align: left;
     font-weight: 600;
     color: var(--text-secondary);
@@ -283,106 +315,41 @@ body {
 }
 
 .node-table td {
-    padding: 8px 8px;
+    padding: 10px;
     color: var(--text-primary);
-    white-space: nowrap;
+    vertical-align: middle;
 }
 
-/* Column-specific widths for compact display */
-/* Index column */
-.node-table td.index-col,
-.node-table th:nth-child(1) {
-    width: 40px;
-    text-align: center;
-}
+/* Column specific styling */
+.node-table .col-index { width: 40px; text-align: center; color: var(--text-muted); }
+.node-table .col-host { min-width: 150px; max-width: 200px; }
+.node-table .col-port { width: 60px; text-align: center; }
+.node-table .col-ssl { width: 60px; text-align: center; }
+.node-table .col-height { width: 70px; text-align: right; font-family: monospace; }
+.node-table .col-version { min-width: 80px; max-width: 120px; }
+.node-table .col-protocol { width: 60px; text-align: center; }
+.node-table .col-status { width: 70px; text-align: center; }
+.node-table .col-lastseen { min-width: 120px; font-size: 0.8rem; }
+.node-table .col-response { width: 70px; text-align: right; font-family: monospace; }
+.node-table .col-uptime { width: 90px; }
 
-/* Host column - wider for addresses */
-.node-table td:nth-child(2),
-.node-table th:nth-child(2) {
-    min-width: 180px;
-    max-width: 250px;
-}
-
-/* Port column */
-.node-table td:nth-child(3),
-.node-table th:nth-child(3) {
-    width: 60px;
-    text-align: center;
-}
-
-/* SSL column */
-.node-table td:nth-child(4),
-.node-table th:nth-child(4) {
-    width: 70px;
-    text-align: center;
-}
-
-/* Height column */
-.node-table td:nth-child(5),
-.node-table th:nth-child(5) {
-    width: 80px;
-    text-align: right;
-}
-
-/* Version column */
-.node-table td:nth-child(6),
-.node-table th:nth-child(6) {
-    min-width: 100px;
-    max-width: 140px;
-}
-
-/* Protocol column */
-.node-table td:nth-child(7),
-.node-table th:nth-child(7) {
-    width: 70px;
-    text-align: center;
-}
-
-/* Status column */
-.node-table td:nth-child(8),
-.node-table th:nth-child(8) {
-    width: 80px;
-    text-align: center;
-}
-
-/* Connection Time column */
-.node-table td:nth-child(9),
-.node-table th:nth-child(9) {
-    min-width: 130px;
-    max-width: 160px;
-    font-size: 0.75rem;
-}
-
-/* Response Time column */
-.node-table td:nth-child(10),
-.node-table th:nth-child(10) {
-    width: 90px;
-    text-align: right;
-}
-
-/* Uptime columns (Hour, Day, Month) */
-.node-table td:nth-child(11),
-.node-table th:nth-child(11),
-.node-table td:nth-child(12),
-.node-table th:nth-child(12),
-.node-table td:nth-child(13),
-.node-table th:nth-child(13) {
-    width: 100px;
-}
-
-/* Host 单元格 */
+/* Host cell */
 .host-cell {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    max-width: 100%;
 }
 
 .host-text {
     font-weight: 600;
     color: var(--accent-cyan);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* 复制按钮 */
+/* Copy button */
 .copy-btn {
     display: inline-flex;
     align-items: center;
@@ -395,6 +362,7 @@ body {
     color: var(--text-secondary);
     transition: all 0.2s ease;
     opacity: 0.6;
+    flex-shrink: 0;
 }
 
 .copy-btn:hover {
@@ -415,16 +383,38 @@ body {
     display: block;
 }
 
-/* 状态样式 */
+/* SSL Badge */
+.ssl-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.ssl-badge.ssl-yes {
+    background: var(--status-bg-online);
+    color: var(--status-online);
+}
+
+.ssl-badge.ssl-no {
+    background: var(--status-bg-offline);
+    color: var(--status-offline);
+}
+
+/* Status Badge */
 .status-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .status-badge.online {
@@ -438,8 +428,8 @@ body {
 }
 
 .status-dot {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     animation: pulse 2s infinite;
 }
@@ -458,30 +448,33 @@ body {
     50% { opacity: 0.5; }
 }
 
-/* 可用率进度条 */
+/* Uptime Bar */
 .uptime-bar {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 6px;
+    width: 100%;
 }
 
 .uptime-value {
-    min-width: 40px;
+    min-width: 42px;
     font-weight: 600;
     font-size: 0.75rem;
+    text-align: right;
 }
 
 .uptime-progress {
-    width: 50px;
+    flex: 1;
     height: 5px;
     background: var(--bg-primary);
     border-radius: 2px;
     overflow: hidden;
+    min-width: 40px;
 }
 
 .uptime-fill {
     height: 100%;
-    border-radius: 3px;
+    border-radius: 2px;
     transition: width 0.3s ease;
 }
 
@@ -497,50 +490,52 @@ body {
     background: linear-gradient(90deg, var(--status-offline), #f87171);
 }
 
-/* 横向滚动优化 */
-@media (max-width: 1600px) {
-    .table-container {
-        overflow-x: auto;
-    }
-}
+/* ========== Responsive Breakpoints - NO HORIZONTAL SCROLL ========== */
 
-/* Tablet - Hide less important columns */
-@media (max-width: 1400px) {
+/* Large screens: Show all columns */
+@media (min-width: 1400px) {
     .node-table {
-        min-width: 1100px;
+        min-width: 100%;
     }
-    
-    /* Hide protocol version on smaller screens */
-    .node-table th:nth-child(7),
-    .node-table td:nth-child(7) {
+}
+
+/* Medium-Large screens: Hide protocol column */
+@media (max-width: 1399px) {
+    .node-table .col-protocol,
+    .node-table th:nth-child(7) {
         display: none;
     }
 }
 
-/* ========== 响应式设计 ========== */
+/* Medium screens: Hide response time column */
 @media (max-width: 1200px) {
-    /* Hide connection time on medium screens */
-    .node-table th:nth-child(9),
-    .node-table td:nth-child(9) {
+    .node-table .col-response,
+    .node-table th:nth-child(10) {
         display: none;
     }
     
-    /* Compact uptime bars */
-    .uptime-bar {
-        gap: 4px;
-    }
-    
-    .uptime-value {
-        font-size: 0.75rem;
-        min-width: 35px;
-    }
-    
-    .uptime-progress {
-        width: 40px;
-        height: 4px;
+    .node-table .col-lastseen {
+        min-width: 100px;
     }
 }
 
+/* Small-Medium screens: Hide connection time column */
+@media (max-width: 1024px) {
+    .node-table .col-lastseen,
+    .node-table th:nth-child(9) {
+        display: none;
+    }
+    
+    .control-bar {
+        flex-direction: column;
+    }
+    
+    .control-group {
+        width: 100%;
+    }
+}
+
+/* Small screens: Compact layout */
 @media (max-width: 768px) {
     .app-container {
         padding: 12px;
@@ -577,112 +572,73 @@ body {
         font-size: 1.2rem;
     }
     
-    .control-bar {
-        flex-direction: column;
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 12px;
     }
     
-    .control-group {
-        width: 100%;
+    .language-switcher {
+        margin-left: 0;
+    }
+    
+    .btn-subscribe {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+    
+    /* Further compact table */
+    .node-table {
+        font-size: 0.8rem;
+    }
+    
+    .node-table th {
+        padding: 8px 6px;
+        font-size: 0.7rem;
+    }
+    
+    .node-table td {
+        padding: 8px 6px;
+    }
+    
+    .col-host {
+        min-width: 120px;
+    }
+    
+    .col-version {
+        max-width: 100px;
+    }
+    
+    .uptime-value {
+        min-width: 38px;
+        font-size: 0.7rem;
+    }
+    
+    .uptime-progress {
+        min-width: 35px;
     }
 }
 
-/* ========== 页脚 ========== */
-.footer {
-    text-align: center;
-    padding: 24px;
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    border-top: 1px solid var(--border-color);
-}
-
-.footer p {
-    margin-bottom: 8px;
-}
-
-.future-features {
-    color: var(--text-secondary);
-    font-size: 0.8rem;
-}
-
-.future-features::before {
-    content: '🚀 ';
-}
-
-/* ========== 加载动画 ========== */
-.loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 60px 20px;
-    color: var(--text-secondary);
-}
-
-.loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--border-color);
-    border-top-color: var(--accent-blue);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-right: 12px;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* ========== 空状态 ========== */
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-muted);
-}
-
-.empty-state-icon {
-    font-size: 3rem;
-    margin-bottom: 16px;
-    opacity: 0.5;
-}
-
-/* ========== Language Switcher ========== */
-.language-switcher {
-    display: inline-block;
-    margin-left: 16px;
-}
-
-.language-switcher .control-select {
-    min-width: 120px;
-    padding: 6px 12px;
-    font-size: 0.9rem;
-}
-
-/* ========== Subscribe Button ========== */
-.btn-subscribe {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-    color: var(--text-primary);
-    border: none;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-left: 16px;
-}
-
-.btn-subscribe:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
+/* Extra small screens: Show only essential columns */
+@media (max-width: 640px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Hide version column on very small screens */
+    .node-table .col-version,
+    .node-table th:nth-child(6) {
+        display: none;
+    }
+    
+    .node-table .col-ssl {
+        width: 50px;
+    }
+    
+    .ssl-badge {
+        padding: 2px 4px;
+        font-size: 0.7rem;
+    }
 }
 
 /* ========== Modal ========== */
@@ -768,7 +724,7 @@ body {
     font-size: 0.95rem;
 }
 
-/* ========== Form Styles ========== */
+/* Form Styles */
 .form-group {
     margin-bottom: 20px;
 }
@@ -845,37 +801,60 @@ body {
     border: 1px solid var(--status-offline);
 }
 
-/* ========== SSL Badge ========== */
-.ssl-cell {
+/* ========== Footer ========== */
+.footer {
     text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border-color);
 }
 
-.ssl-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
-    border-radius: 4px;
+.footer p {
+    margin-bottom: 8px;
+}
+
+.future-features {
+    color: var(--text-secondary);
     font-size: 0.8rem;
-    font-weight: 600;
 }
 
-.ssl-badge.ssl-yes {
-    background: var(--status-bg-online);
-    color: var(--status-online);
+.future-features::before {
+    content: '🚀 ';
 }
 
-.ssl-badge.ssl-no {
-    background: var(--status-bg-offline);
-    color: var(--status-offline);
+/* ========== Loading Animation ========== */
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
 }
 
-/* ========== Updated Table Styles ========== */
-.ssl-cell {
-    min-width: 70px;
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--accent-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 12px;
 }
 
-.mono {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 0.9rem;
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ========== Empty State ========== */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
 }

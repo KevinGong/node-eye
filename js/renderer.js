@@ -35,10 +35,10 @@ class TableRenderer {
         
         return `
             <tr>
-                <td class="index-col">${index}</td>
-                <td>
+                <td class="col-index">${index}</td>
+                <td class="col-host">
                     <div class="host-cell">
-                        <span class="host-text">${this.escapeHtml(node.host)}</span>
+                        <span class="host-text" title="${this.escapeHtml(node.host)}">${this.escapeHtml(node.host)}</span>
                         <button class="copy-btn" data-copy="${this.escapeHtml(hostPort)}" title="${this.i18n ? this.i18n.t('copyAddress') : 'Copy node address'}">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -47,17 +47,17 @@ class TableRenderer {
                         </button>
                     </div>
                 </td>
-                <td>${node.port}</td>
-                <td class="ssl-cell">${this.renderSslIcon(node.ssl)}</td>
-                <td class="mono">${this.formatNumber(node.height)}</td>
-                <td class="mono">${this.escapeHtml(node.server_version || '')}</td>
-                <td class="mono">${node.protocol_version || ''}</td>
-                <td>${this.renderStatus(statusClass, statusText)}</td>
-                <td class="mono">${node.last_seen || ''}</td>
-                <td class="mono">${node.response_time_ms ? node.response_time_ms + ' ms' : '-'}</td>
-                <td>${this.renderUptimeCell(node.per_hour)}</td>
-                <td>${this.renderUptimeCell(node.per_day)}</td>
-                <td>${this.renderUptimeCell(node.per_month)}</td>
+                <td class="col-port">${node.port}</td>
+                <td class="col-ssl">${this.renderSslIcon(node.ssl)}</td>
+                <td class="col-height">${this.formatNumber(node.height)}</td>
+                <td class="col-version">${this.escapeHtml(node.server_version || '')}</td>
+                <td class="col-protocol">${node.protocol_version || ''}</td>
+                <td class="col-status">${this.renderStatus(statusClass, statusText)}</td>
+                <td class="col-lastseen">${node.last_seen || ''}</td>
+                <td class="col-response">${node.response_time_ms ? node.response_time_ms + ' ms' : '-'}</td>
+                <td class="col-uptime">${this.renderUptimeCell(node.per_hour)}</td>
+                <td class="col-uptime">${this.renderUptimeCell(node.per_day)}</td>
+                <td class="col-uptime">${this.renderUptimeCell(node.per_month)}</td>
             </tr>
         `;
     }

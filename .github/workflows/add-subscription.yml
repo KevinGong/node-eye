@@ -1,0 +1,98 @@
+name: Add Subscription
+
+on:
+  # Manual trigger from frontend
+  workflow_dispatch:
+    inputs:
+      email:
+        description: 'Subscriber email'
+        required: true
+        type: string
+      chain_id:
+        description: 'Blockchain ID'
+        required: true
+        type: string
+        default: 'bitcoin'
+
+jobs:
+  add-subscription:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Download subscriptions artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: subscriptions
+          path: /tmp/
+        continue-on-error: true
+      
+      - name: Add subscription
+        env:
+          SUBSCRIBER_EMAIL: ${{ github.event.inputs.email }}
+          SUBSCRIBER_CHAIN: ${{ github.event.inputs.chain_id }}
+        run: |
+          python3 << 'EOF'
+          import json
+          import os
+          from pathlib import Path
+          from datetime import datetime
+          
+          # Load or initialize
+          subs_file = Path('/tmp/subscriptions.json')
+          if subs_file.exists():
+              with open(subs_file) as f:
+                  data = json.load(f)
+          else:
+              data = {'subscribers': []}
+          
+          # Add subscription
+          email = os.getenv('SUBSCRIBER_EMAIL')
+          chain_id = os.getenv('SUBSCRIBER_CHAIN')
+          
+          # Check if exists
+          exists = False
+          for sub in data['subscribers']:
+              if sub['email'] == email:
+                  sub['chain_id'] = chain_id
+                  sub['updated_at'] = datetime.now().isoformat()
+                  exists = True
+                  break
+          
+          if not exists:
+              data['subscribers'].append({
+                  'email': email,
+                  'chain_id': chain_id,
+                  'subscribed_at': datetime.now().isoformat(),
+                  'status': 'active'
+              })
+          
+          # Save
+          with open(subs_file, 'w') as f:
+              json.dump(data, f, indent=2)
+          
+          print(f"✅ Added subscription: {email} ({chain_id})")
+          EOF
+      
+      - name: Upload subscriptions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: subscriptions
+          path: /tmp/subscriptions.json
+          retention-days: 30
+      
+      - name: Commit and push (optional)
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add data/subscribers.enc 2>/dev/null || true
+          git commit -m "feat: Add subscription ${{ github.event.inputs.email }}" 2>/dev/null || true
+          git push 2>/dev/null || true
+        continue-on-error: true

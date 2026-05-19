@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Update Node Eye Data and Notify Subscribers
+Update Node Eye Data and Send Emails to Subscribers
 This script:
 1. Converts latest Electrum data to Node Eye format
 2. Updates JSON data files
 3. Commits and pushes to GitHub
-4. Sends email reports to all subscribers
+4. Reads subscribers from encrypted file
+5. Sends email reports to all subscribers
 
 Usage:
   python update_and_notify.py [electrum_file_path]
@@ -20,11 +21,45 @@ import subprocess
 from pathlib import Path
 from datetime import datetime, timedelta
 import random
+import base64
 
 # Configuration
 DATA_DIR = Path(__file__).parent.parent / 'data'
 INBOUND_DIR = Path('/home/admin/.openclaw/media/inbound')
 SCRIPTS_DIR = Path(__file__).parent
+ENCRYPTION_PASSWORD = "20260518"
+
+def xor_encrypt_decrypt(data: bytes, key: str) -> bytes:
+    """XOR encryption/decryption"""
+    key_bytes = key.encode('utf-8')
+    result = bytearray()
+    for i, byte in enumerate(data):
+        result.append(byte ^ key_bytes[i % len(key_bytes)])
+    return bytes(result)
+
+def load_subscribers():
+    """Load subscribers from encrypted file"""
+    enc_file = DATA_DIR / 'subscribers.enc'
+    
+    if not enc_file.exists():
+        print("⚠️  No subscribers file found")
+        return []
+    
+    try:
+        # Read and decrypt
+        with open(enc_file, 'rb') as f:
+            encrypted = base64.b64decode(f.read())
+        
+        decrypted = xor_encrypt_decrypt(encrypted, ENCRYPTION_PASSWORD)
+        data = json.loads(decrypted.decode('utf-8'))
+        
+        subscribers = data.get('subscribers', [])
+        print(f"📧 Found {len(subscribers)} subscribers")
+        return subscribers
+        
+    except Exception as e:
+        print(f"⚠️  Failed to load subscribers: {e}")
+        return []
 
 def find_latest_electrum_file():
     """Find the most recent Electrum discovery file"""
@@ -145,7 +180,6 @@ def convert_data(input_file, chain='bitcoin'):
     print(f"   - Online: {online} ({online/total*100:.1f}%)")
     print(f"   - Offline: {offline} ({offline/total*100:.1f}%)")
     print(f"   - Avg response time: {avg_response:.0f}ms")
-    print(f"   - Avg uptime (H/D/M): {avg_per_hour*100:.2f}% / {avg_per_day*100:.2f}% / {avg_per_month*100:.2f}%")
     
     return output
 
@@ -190,9 +224,17 @@ def commit_and_push():
         return False
 
 def send_subscriber_emails():
-    """Send emails to subscribers"""
+    """Send emails to all subscribers"""
     print("\n📧 Sending emails to subscribers...")
     
+    # Load subscribers
+    subscribers = load_subscribers()
+    
+    if not subscribers:
+        print("📭 No subscribers to email")
+        return
+    
+    # Call email sending script
     email_script = SCRIPTS_DIR / 'send_subscription_emails.py'
     if not email_script.exists():
         print("⚠️  Email script not found")
@@ -206,7 +248,7 @@ def send_subscriber_emails():
     )
     
     if result.returncode == 0:
-        print("✅ Subscriber emails sent")
+        print("✅ All subscriber emails sent")
     else:
         print("⚠️  Some emails failed to send")
 
@@ -235,10 +277,10 @@ def main():
     # Step 3: Commit and push
     print("\n📤 Uploading to GitHub...")
     if not commit_and_push():
-        print("⚠️  Failed to push to GitHub, skipping email notification")
-        sys.exit(1)
+        print("⚠️  Failed to push to GitHub")
+        # Continue to send emails anyway
     
-    # Step 4: Send emails to subscribers
+    # Step 4: Send emails to subscribers (ALWAYS DO THIS)
     send_subscriber_emails()
     
     print("\n" + "=" * 60)
